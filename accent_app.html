@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Accent Coach</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding-top: 50px; background-color: #f4f4f9; }
+        #progressBar { width: 80%; height: 30px; border: 2px solid #ccc; margin: 20px auto; border-radius: 15px; overflow: hidden; background: #eee; }
+        #progressFill { width: 0%; height: 100%; transition: width 0.5s, background-color 0.5s; }
+        button { padding: 15px 30px; font-size: 18px; cursor: pointer; border: none; background: #007bff; color: white; border-radius: 5px; }
+        button:active { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1 id="wordDisplay">Loading...</h1>
+    <button onclick="startListening()">🎤 Press to Speak</button>
+    <div id="progressBar"><div id="progressFill"></div></div>
+    <p id="feedback">Press the button and say the word!</p>
+
+    <script>
+        // 1. The Word List
+        const words = ["Schedule", "Tomato", "Library", "February", "Recipe"];
+        let currentWord = "";
+
+        function nextWord() {
+            currentWord = words[Math.floor(Math.random() * words.length)];
+            document.getElementById('wordDisplay').innerText = `Say: ${currentWord}`;
+        }
+
+        // 2. The "Brain" (Speech API)
+        function startListening() {
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                const score = event.results[0][0].confidence;
+                updateUI(transcript, score);
+            };
+            recognition.start();
+        }
+
+        // 3. The Logic (Target 0.8)
+        function updateUI(transcript, score) {
+            const fill = document.getElementById('progressFill');
+            const feedback = document.getElementById('feedback');
+            
+            let progress = (score / 0.8) * 100;
+            fill.style.width = Math.min(progress, 100) + "%";
+
+            if (score >= 0.95) {
+                fill.style.backgroundColor = "purple";
+                feedback.innerText = `🌟 Super Expert! Score: ${score.toFixed(2)}`;
+            } else if (score >= 0.8) {
+                fill.style.backgroundColor = "green";
+                feedback.innerText = `✅ Great! Score: ${score.toFixed(2)}`;
+            } else {
+                fill.style.backgroundColor = score > 0.6 ? "yellow" : "red";
+                feedback.innerText = `⚠️ Try again. You said "${transcript}" (Score: ${score.toFixed(2)})`;
+            }
+            setTimeout(nextWord, 3000);
+        }
+        nextWord();
+    </script>
+</body>
+</html>

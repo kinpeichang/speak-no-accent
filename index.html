@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accent Master v9</title>
+    <title>Accent Master Final</title>
     <style>
         body { 
             font-family: 'Inter', sans-serif; 
@@ -29,6 +29,7 @@
         #progressBar { width: 100%; max-width: 500px; height: 12px; background: rgba(255,255,255,0.2); border-radius: 6px; margin: 30px 0; overflow: hidden; }
         #progressFill { width: 0%; height: 100%; transition: width 0.3s ease; }
         .history-item { background: rgba(255,255,255,0.1); padding: 8px; margin-top: 5px; border-radius: 5px; font-size: 0.85rem; }
+        input { padding: 10px; border-radius: 20px; border: 1px solid #ccc; width: 180px; color: #333; outline: none; }
     </style>
 </head>
 <body>
@@ -50,8 +51,17 @@
         </div>
         <div id="progressBar"><div id="progressFill"></div></div>
         <p id="feedback">Ready!</p>
-        <label>Speed: <input type="range" id="speedSlider" min="0.1" max="1" step="0.1" value="0.9"></label>
-        <button onclick="setRandomWord()" style="background: #f1c40f; color: #2c3e50; margin-top: 20px;">🎲 Random Word</button>
+        
+        <div style="margin: 20px 0; display: flex; flex-direction: column; align-items: center; gap: 15px;">
+            <label>Speed: <input type="range" id="speedSlider" min="0.1" max="1" step="0.1" value="0.9"></label>
+            
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="userWordInput" placeholder="Enter your word...">
+                <button onclick="setCustomWord()" style="background: white; color: #1e3c72; padding: 10px 20px;">Set Word</button>
+            </div>
+            
+            <button onclick="setRandomWord()" style="background: #f1c40f; color: #2c3e50;">🎲 Random Word</button>
+        </div>
     </div>
 
     <audio id="dingSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
@@ -62,25 +72,35 @@
         const wordBank = ["Schedule", "Library", "Phenomenon", "Rural", "Sixth", "February", "Specific"];
         const recognition = new (window.webkitSpeechRecognition || window.SpeechRecognition)();
 
-        // 👩‍💼 Selects a female voice based on common system names
-        function getFemaleVoice() {
+        // 🇦🇺 Find Australian accent
+        function getAussieVoice() {
             const voices = window.speechSynthesis.getVoices();
             return voices.find(v => 
-                v.name.includes("Samantha") || 
-                v.name.includes("Zira") || 
-                v.name.includes("Female") ||
-                v.name.includes("Google US English")
+                v.lang === 'en-AU' || 
+                v.name.includes("Australia") || 
+                v.name.includes("AU")
             );
         }
 
         function speakWord() {
             const msg = new SpeechSynthesisUtterance(currentWord);
-            const voice = getFemaleVoice();
+            const voice = getAussieVoice();
             if (voice) msg.voice = voice;
-
-            // 🐢 Slows down to 0.5 speed after 4 failed attempts
             msg.rate = (attemptCount >= 4) ? 0.5 : document.getElementById('speedSlider').value;
             window.speechSynthesis.speak(msg);
+        }
+
+        function setCustomWord() {
+            const input = document.getElementById('userWordInput');
+            const newWord = input.value.trim();
+            if (newWord !== "") {
+                currentWord = newWord;
+                document.getElementById('wordDisplay').innerText = currentWord;
+                document.getElementById('progressFill').style.width = "0%";
+                document.getElementById('feedback').innerText = "Custom word set!";
+                attemptCount = 0;
+                input.value = "";
+            }
         }
 
         function startListening() { recognition.start(); }
@@ -94,7 +114,6 @@
         function updateUI(transcript, score) {
             const percentage = Math.round(score * 100);
             const fill = document.getElementById('progressFill');
-            
             document.getElementById('scoreDisplay').innerText = percentage + "%";
             fill.style.width = percentage + "%";
 
@@ -110,8 +129,6 @@
             }
 
             document.getElementById('streakDisplay').innerText = `${currentStreak} ⚡`;
-
-            // 📜 Adds entry and removes the 11th item to keep the last 10
             const log = document.getElementById('historyLog');
             const entry = document.createElement('div');
             entry.className = 'history-item';
@@ -127,8 +144,7 @@
             document.getElementById('feedback').innerText = "Ready!";
         }
 
-        // 🔊 Ensures voices are loaded in browsers like Chrome
-        window.speechSynthesis.onvoiceschanged = () => { getFemaleVoice(); };
+        window.speechSynthesis.onvoiceschanged = () => { getAussieVoice(); };
     </script>
 </body>
 </html>

@@ -2,90 +2,67 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accent Master v7</title>
+    <title>Accent Master v8</title>
     <style>
-        body { 
-            font-family: 'Inter', sans-serif; 
-            margin: 0; display: flex; height: 100vh; 
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white; overflow: hidden;
-        }
-        .sidebar { 
-            width: 280px; background: rgba(255, 255, 255, 0.1); 
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            border-right: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 25px; display: flex; flex-direction: column; gap: 20px; 
-        }
-        .stat-box { 
-            background: rgba(255, 255, 255, 0.05); padding: 15px; 
-            border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .stat-number { font-size: 1.8rem; font-weight: bold; color: #3498db; }
+        body { font-family: 'Inter', sans-serif; margin: 0; display: flex; height: 100vh; background: #1e3c72; color: white; overflow: hidden; }
+        .sidebar { width: 280px; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 25px; border-right: 1px solid rgba(255,255,255,0.2); display: flex; flex-direction: column; gap: 15px; }
         .main-content { flex: 1; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        #wordDisplay { font-size: 4rem; margin-bottom: 20px; }
-        button { padding: 12px 25px; border: none; border-radius: 30px; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        #recordBtn { background: #e74c3c; color: white; }
-        .recording-active { animation: pulse-red 1.5s infinite; background: #ff4d4d !important; }
-        @keyframes pulse-red {
-            0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
-            70% { box-shadow: 0 0 0 20px rgba(231, 76, 60, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
-        }
-        #progressBar { width: 100%; max-width: 500px; height: 12px; background: rgba(255,255,255,0.2); border-radius: 6px; margin: 30px 0; overflow: hidden; }
-        #progressFill { width: 0%; height: 100%; transition: width 0.3s ease, background-color 0.3s ease; }
+        .stat-box { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; }
+        .stat-number { font-size: 1.8rem; font-weight: bold; color: #3498db; }
+        #wordDisplay { font-size: 4rem; margin-bottom: 10px; }
+        #levelBadge { background: #f1c40f; color: #2c3e50; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; margin-bottom: 20px; }
+        #progressBar { width: 100%; max-width: 500px; height: 12px; background: rgba(255,255,255,0.2); border-radius: 6px; overflow: hidden; margin: 20px 0; }
+        #progressFill { width: 0%; height: 100%; transition: width 0.3s ease; }
         .history-item { background: rgba(255,255,255,0.1); padding: 8px; margin-top: 5px; border-radius: 5px; font-size: 0.85rem; }
+        button { padding: 12px 25px; border: none; border-radius: 30px; cursor: pointer; font-weight: bold; margin: 5px; }
     </style>
 </head>
 <body>
     <div class="sidebar">
-        <h2>Progress 🏆</h2>
-        <div class="stat-box"><div>Current Streak</div><div id="streakDisplay" class="stat-number">0 ⚡</div></div>
+        <h2>Stats 📊</h2>
+        <div class="stat-box"><div>Current Level</div><div id="levelDisplay" class="stat-number" style="color:#f1c40f">Easy</div></div>
+        <div class="stat-box"><div>Streak</div><div id="streakDisplay" class="stat-number">0 ⚡</div></div>
         <div class="stat-box"><div>Last Score</div><div id="scoreDisplay" class="stat-number">0%</div></div>
-        <div style="flex:1; overflow-y:auto;">
-            <strong>Try History 📜</strong>
-            <div id="historyLog"></div>
-        </div>
+        <div style="flex:1; overflow-y:auto;"><strong>Try History 📜</strong><div id="historyLog"></div></div>
     </div>
 
     <div class="main-content">
-        <h1 id="wordDisplay">Hello</h1>
-        <div style="display:flex; gap:15px; margin-bottom: 20px;">
+        <div id="levelBadge">Level: Easy</div>
+        <h1 id="wordDisplay">Tree</h1>
+        <div>
             <button onclick="speakWord()" style="background: #3498db; color: white;">🔊 Listen</button>
-            <button id="recordBtn" onclick="startListening()">🎤 Record</button>
+            <button onclick="startListening()" style="background: #e74c3c; color: white;">🎤 Record</button>
         </div>
-        <label>Speed: <input type="range" id="speedSlider" min="0.1" max="1" step="0.1" value="0.9"></label>
         <div id="progressBar"><div id="progressFill"></div></div>
         <p id="feedback">Ready!</p>
-        <div style="margin-top: 40px; display: flex; gap: 10px;">
-            <input type="text" id="userWordInput" placeholder="New word..." style="padding: 10px; border-radius: 5px; border:none; width: 150px; color: #333;">
-            <button onclick="setCustomWord()" style="background: white; color: #1e3c72;">Set</button>
-            <button onclick="setRandomWord()" style="background: #f1c40f; color: #2c3e50;">🎲 Random</button>
-        </div>
+        <label>Speed: <input type="range" id="speedSlider" min="0.1" max="1" step="0.1" value="0.9"></label>
     </div>
 
     <audio id="dingSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
     <audio id="successSound" src="https://actions.google.com/sounds/v1/cartoon/clink_glasses.ogg"></audio>
-    <audio id="failSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
 
     <script>
-        let currentWord = "Hello", currentStreak = 0, attemptCount = 0;
-        const wordBank = ["Schedule", "Library", "Phenomenon", "Rural", "Sixth", "February", "Specific"];
-        const recognition = new (window.webkitSpeechRecognition || window.SpeechRecognition)();
-        recognition.lang = 'en-US';
+        const wordBank = {
+            easy: ["Tree", "Apple", "Book", "Sun", "Milk"],
+            medium: ["February", "Library", "Schedule", "Specific", "Purple"],
+            hard: ["Anemone", "Phenomenon", "Rural", "Sixth", "Colonel"]
+        };
 
+        let currentWord = "Tree", currentStreak = 0, attemptCount = 0, currentLevel = "easy";
+        const recognition = new (window.webkitSpeechRecognition || window.SpeechRecognition)();
+
+        // 👩‍💼 Female Voice Selection
         function speakWord() {
             const msg = new SpeechSynthesisUtterance(currentWord);
-            // Help kicks in after 4 fails
+            const voices = window.speechSynthesis.getVoices();
+            const femaleVoice = voices.find(v => v.name.includes("Female") || v.name.includes("Samantha") || v.name.includes("Zira") || v.name.includes("Google US English"));
+            
+            if (femaleVoice) msg.voice = femaleVoice;
             msg.rate = (attemptCount >= 4) ? 0.5 : document.getElementById('speedSlider').value;
             window.speechSynthesis.speak(msg);
         }
 
-        function startListening() {
-            const btn = document.getElementById('recordBtn');
-            btn.classList.add('recording-active');
-            recognition.start();
-        }
+        function startListening() { recognition.start(); }
 
         recognition.onresult = (event) => {
             const transcript = event.results[0][0].transcript.toLowerCase();
@@ -93,69 +70,57 @@
             updateUI(transcript, score);
         };
 
-        recognition.onend = () => document.getElementById('recordBtn').classList.remove('recording-active');
-
         function updateUI(transcript, score) {
             const percentage = Math.round(score * 100);
-            const fill = document.getElementById('progressFill');
-            const feedback = document.getElementById('feedback');
-            
             document.getElementById('scoreDisplay').innerText = percentage + "%";
-            fill.style.width = percentage + "%";
+            document.getElementById('progressFill').style.width = percentage + "%";
 
-            // Success Path
             if (percentage >= 80) {
                 currentStreak++;
-                attemptCount = 0; // Reset helper 🔄
-                if (percentage === 100) {
-                    document.getElementById('dingSound').play();
-                    fill.style.backgroundColor = "#9b59b6"; // Purple for Perfect
-                } else {
-                    document.getElementById('successSound').play();
-                    fill.style.backgroundColor = "#2ecc71"; // Green for Success
-                }
-                setTimeout(setRandomWord, 200); // Fast switch ⚡
-            } 
-            // Failure Path
-            else {
+                attemptCount = 0;
+                
+                // 🚀 Level-Up Logic
+                if (currentStreak === 5 && currentLevel === "easy") upgradeLevel("medium");
+                else if (currentStreak === 10 && currentLevel === "medium") upgradeLevel("hard");
+
+                if (percentage === 100) document.getElementById('dingSound').play();
+                else document.getElementById('successSound').play();
+                
+                setTimeout(setRandomWord, 400);
+            } else {
                 currentStreak = 0;
-                attemptCount++; // Increment for slow-mo helper 🐢
-                document.getElementById('failSound').play();
-                fill.style.backgroundColor = "#e74c3c"; // Red for Fail
-                feedback.innerText = `Try again! Heard: "${transcript}"`;
+                attemptCount++;
             }
 
-            document.getElementById('streakDisplay').innerText = `${currentStreak} ⚡`;
+            document.getElementById('streakDisplay').innerText = currentStreak + " ⚡";
+            updateHistory(percentage);
+        }
 
-            // History Log Management 📜
+        function upgradeLevel(newLevel) {
+            currentLevel = newLevel;
+            document.getElementById('levelDisplay').innerText = newLevel.charAt(0).toUpperCase() + newLevel.slice(1);
+            document.getElementById('levelBadge').innerText = "Level: " + currentLevel.toUpperCase();
+            document.getElementById('feedback').innerText = "LEVEL UP! 🚀";
+        }
+
+        function updateHistory(percentage) {
             const log = document.getElementById('historyLog');
             const entry = document.createElement('div');
             entry.className = 'history-item';
-            entry.innerHTML = `Tried <b>${currentWord}</b>: ${percentage}%`;
+            entry.innerHTML = `<b>${currentWord}</b>: ${percentage}%`;
             log.prepend(entry);
-
-            // Limit to 10 items
-            if (log.children.length > 10) {
-                log.removeChild(log.lastElementChild);
-            }
+            if (log.children.length > 10) log.removeChild(log.lastElementChild);
         }
 
         function setRandomWord() {
-            currentWord = wordBank[Math.floor(Math.random() * wordBank.length)];
+            const list = wordBank[currentLevel];
+            currentWord = list[Math.floor(Math.random() * list.length)];
             document.getElementById('wordDisplay').innerText = currentWord;
             document.getElementById('progressFill').style.width = "0%";
-            document.getElementById('feedback').innerText = "Ready!";
         }
 
-        function setCustomWord() {
-            const val = document.getElementById('userWordInput').value;
-            if(val) {
-                currentWord = val;
-                document.getElementById('wordDisplay').innerText = val;
-                document.getElementById('progressFill').style.width = "0%";
-                attemptCount = 0;
-            }
-        }
+        // Fix for Chrome voice loading
+        window.speechSynthesis.onvoiceschanged = () => {};
     </script>
 </body>
 </html>

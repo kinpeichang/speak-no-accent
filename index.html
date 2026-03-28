@@ -1,63 +1,209 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Accent Coach</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accent Master Dashboard</title>
     <style>
-        body { font-family: sans-serif; text-align: center; padding-top: 50px; background-color: #f4f4f9; }
-        #progressBar { width: 80%; height: 30px; border: 2px solid #ccc; margin: 20px auto; border-radius: 15px; overflow: hidden; background: #eee; }
-        #progressFill { width: 0%; height: 100%; transition: width 0.5s, background-color 0.5s; }
-        button { padding: 15px 30px; font-size: 18px; cursor: pointer; border: none; background: #007bff; color: white; border-radius: 5px; }
-        button:active { background: #0056b3; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            display: flex; 
+            height: 100vh; 
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background-attachment: fixed;
+            color: white;
+        }
+
+        /* Glassmorphism Sidebar */
+        .sidebar { 
+            width: 280px; 
+            background: rgba(255, 255, 255, 0.1); 
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 25px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 20px; 
+        }
+
+        .main-content { 
+            flex: 1; 
+            padding: 40px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            text-align: center;
+        }
+
+        .stat-box { 
+            background: rgba(255, 255, 255, 0.05); 
+            padding: 15px; 
+            border-radius: 12px; 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-number { font-size: 1.8rem; font-weight: bold; color: #3498db; }
+
+        /* History List Styling */
+        #historyList { list-style: none; padding: 0; margin-top: 10px; }
+        .history-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            padding: 8px 0; 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+        }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .dot-green { background: #2ecc71; }
+        .dot-red { background: #e74c3c; }
+
+        /* Main UI Elements */
+        #wordDisplay { font-size: 4rem; margin-bottom: 20px; text-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        
+        button { 
+            padding: 12px 25px; 
+            border: none; 
+            border-radius: 30px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            transition: transform 0.2s; 
+        }
+        button:hover { transform: scale(1.05); }
+
+        #recordBtn { background: #e74c3c; color: white; }
+        
+        /* Pulse Animation */
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(231, 76, 60, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+        }
+        .recording-active { animation: pulse-red 1.5s infinite; background: #ff4d4d !important; }
+
+        #progressBar { 
+            width: 100%; 
+            max-width: 500px; 
+            height: 12px; 
+            background: rgba(255,255,255,0.2); 
+            border-radius: 6px; 
+            margin: 30px 0; 
+            overflow: hidden; 
+        }
+        #progressFill { width: 0%; height: 100%; transition: width 0.5s ease, background-color 0.5s ease; }
     </style>
 </head>
 <body>
-    <h1 id="wordDisplay">Loading...</h1>
-    <button onclick="startListening()">🎤 Press to Speak</button>
-    <div id="progressBar"><div id="progressFill"></div></div>
-    <p id="feedback">Press the button and say the word!</p>
+
+    <div class="sidebar">
+        <h2>Progress 🏆</h2>
+        <div class="stat-box">
+            <div>Mastered</div>
+            <div id="goalDisplay" class="stat-number">0</div>
+        </div>
+        <div class="stat-box">
+            <div>Last Score</div>
+            <div id="lastScoreDisplay" class="stat-number">0.00</div>
+        </div>
+        <div class="stat-box" style="flex:1; overflow-y:auto;">
+            <strong>Recent History</strong>
+            <ul id="historyList"></ul>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <h1 id="wordDisplay">Hello</h1>
+        
+        <div style="display:flex; gap:15px; margin-bottom: 20px;">
+            <button onclick="speakWord()" style="background: #3498db; color: white;">🔊 Listen</button>
+            <button id="recordBtn" onclick="startListening()">🎤 Record</button>
+        </div>
+
+        <label>Listen Speed: <input type="range" id="speedSlider" min="0.1" max="1" step="0.1" value="0.9"></label>
+
+        <div id="progressBar"><div id="progressFill"></div></div>
+        <p id="feedback">Ready when you are!</p>
+
+        <div style="margin-top: 40px;">
+            <input type="text" id="userWordInput" placeholder="New word..." style="padding: 10px; border-radius: 5px; border:none;">
+            <button onclick="setCustomWord()" style="background: white; color: #1e3c72;">Set Word</button>
+        </div>
+    </div>
+
+    <audio id="successSound" src="https://actions.google.com/sounds/v1/cartoon/clink_glasses.ogg"></audio>
+    <audio id="failSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
 
     <script>
-        // 1. The Word List
-        const words = ["Schedule", "Tomato", "Library", "February", "Recipe"];
-        let currentWord = "";
+        let currentWord = "Hello";
+        let wordsMastered = 0;
+        let lastScore = 0;
 
-        function nextWord() {
-            currentWord = words[Math.floor(Math.random() * words.length)];
-            document.getElementById('wordDisplay').innerText = `Say: ${currentWord}`;
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'en-US';
+
+        function speakWord() {
+            const msg = new SpeechSynthesisUtterance(currentWord);
+            msg.lang = 'en-US';
+            msg.rate = document.getElementById('speedSlider').value;
+            window.speechSynthesis.speak(msg);
         }
 
-        // 2. The "Brain" (Speech API)
         function startListening() {
-            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-            recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                const score = event.results[0][0].confidence;
-                updateUI(transcript, score);
-            };
+            const btn = document.getElementById('recordBtn');
+            btn.classList.add('recording-active');
+            btn.innerText = "🛑 Listening...";
             recognition.start();
         }
 
-        // 3. The Logic (Target 0.8)
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript.toLowerCase();
+            const score = transcript === currentWord.toLowerCase() ? 1.0 : 0.5; // Simple logic for now
+            updateUI(transcript, score);
+        };
+
+        recognition.onend = () => {
+            const btn = document.getElementById('recordBtn');
+            btn.classList.remove('recording-active');
+            btn.innerText = "🎤 Record";
+        };
+
         function updateUI(transcript, score) {
             const fill = document.getElementById('progressFill');
             const feedback = document.getElementById('feedback');
             
-            let progress = (score / 0.8) * 100;
-            fill.style.width = Math.min(progress, 100) + "%";
-
-            if (score >= 0.95) {
-                fill.style.backgroundColor = "purple";
-                feedback.innerText = `🌟 Super Expert! Score: ${score.toFixed(2)}`;
-            } else if (score >= 0.8) {
-                fill.style.backgroundColor = "green";
-                feedback.innerText = `✅ Great! Score: ${score.toFixed(2)}`;
+            fill.style.width = (score * 100) + "%";
+            
+            if (score >= 0.8) {
+                fill.style.backgroundColor = "#2ecc71";
+                feedback.innerText = `Perfect! You said: "${transcript}"`;
+                document.getElementById('successSound').play();
+                wordsMastered++;
+                document.getElementById('goalDisplay').innerText = wordsMastered;
             } else {
-                fill.style.backgroundColor = score > 0.6 ? "yellow" : "red";
-                feedback.innerText = `⚠️ Try again. You said "${transcript}" (Score: ${score.toFixed(2)})`;
+                fill.style.backgroundColor = "#e74c3c";
+                feedback.innerText = `Try again! Heard: "${transcript}"`;
+                document.getElementById('failSound').play();
             }
-            setTimeout(nextWord, 3000);
+
+            // Update History
+            const list = document.getElementById('historyList');
+            const li = document.createElement('li');
+            li.className = 'history-item';
+            li.innerHTML = `<span class="status-dot ${score >= 0.8 ? 'dot-green' : 'dot-red'}"></span> ${currentWord} (${score})`;
+            list.insertBefore(li, list.firstChild);
         }
-        nextWord();
+
+        function setCustomWord() {
+            const input = document.getElementById('userWordInput').value;
+            if(input) {
+                currentWord = input;
+                document.getElementById('wordDisplay').innerText = currentWord;
+                document.getElementById('progressFill').style.width = "0%";
+            }
+        }
     </script>
 </body>
 </html>

@@ -21,10 +21,10 @@
             background: rgba(255, 255, 255, 0.05); padding: 15px; 
             border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        /* 📜 This section handles the scrolling logic */
+        /* 📜 Scrollable History Container */
         .history-container {
             flex: 1; 
-            overflow-y: auto; /* Adds the vertical scrollbar */
+            overflow-y: auto; 
             margin-top: 10px;
             padding-right: 5px;
             border-top: 1px solid rgba(255,255,255,0.1);
@@ -128,7 +128,6 @@
             }
             document.getElementById('streakDisplay').innerText = currentStreak;
             
-            // Add to history
             const log = document.getElementById('historyLog');
             const entry = document.createElement('div');
             entry.className = 'history-item';

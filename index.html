@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accent Master v13</title>
+    <title>Accent Master v14</title>
     <style>
         body { 
             font-family: 'Inter', sans-serif; 
@@ -21,7 +21,17 @@
             background: rgba(255, 255, 255, 0.05); padding: 15px; 
             border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .stat-number { font-size: 1.8rem; font-weight: bold; color: #3498db; }
+        /* 📜 This section handles the scrolling logic */
+        .history-container {
+            flex: 1; 
+            overflow-y: auto; /* Adds the vertical scrollbar */
+            margin-top: 10px;
+            padding-right: 5px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .history-container::-webkit-scrollbar { width: 5px; }
+        .history-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+
         .main-content { flex: 1; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         #wordDisplay { font-size: 4rem; margin-bottom: 20px; text-shadow: 2px 2px 10px rgba(0,0,0,0.3); }
         button { padding: 12px 25px; border: none; border-radius: 30px; cursor: pointer; font-weight: bold; transition: 0.2s; margin: 5px; }
@@ -35,11 +45,17 @@
 <body>
     <div class="sidebar">
         <h2>Accent Master 🏆</h2>
-        <div class="stat-box"><div>Current Streak</div><div id="streakDisplay" class="stat-number">0 ⚡</div></div>
-        <div class="stat-box"><div>Last Score</div><div id="scoreDisplay" class="stat-number">0%</div></div>
-        <div style="flex:1; overflow-y:auto;">
+        <div class="stat-box">Streak: <span id="streakDisplay">0</span> ⚡</div>
+        <div class="stat-box">Last Score: <span id="scoreDisplay">0%</span></div>
+        
+        <div class="history-container">
             <strong>Try History 📜</strong>
             <div id="historyLog"></div>
+        </div>
+
+        <div style="margin-top: auto;">
+            <input type="text" id="userWordInput" placeholder="Set custom word...">
+            <button onclick="setCustomWord()" style="background: white; color: #1e3c72; width: 100%; margin-top: 10px;">Set Word</button>
         </div>
     </div>
 
@@ -51,25 +67,16 @@
         </div>
         <div id="progressBar"><div id="progressFill"></div></div>
         <p id="feedback">Ready!</p>
-        
-        <div style="margin: 20px 0; display: flex; flex-direction: column; align-items: center; gap: 15px;">
-            <label>Speed: <input type="range" id="speedSlider" min="0.1" max="1" step="0.1" value="0.9"></label>
-            <div style="display: flex; gap: 10px;">
-                <input type="text" id="userWordInput" placeholder="Enter custom word...">
-                <button onclick="setCustomWord()" style="background: white; color: #1e3c72; padding: 10px 20px;">Set Word</button>
-            </div>
-            <button onclick="setRandomWord()" style="background: #f1c40f; color: #2c3e50;">🎲 Random Word</button>
-        </div>
+        <button onclick="setRandomWord()" style="background: #f1c40f; color: #2c3e50;">🎲 Random Word</button>
     </div>
 
     <audio id="tacoSound" src="https://actions.google.com/sounds/v1/impacts/crash_metal.ogg"></audio>
-    <audio id="successSound" src="https://actions.google.com/sounds/v1/cartoon/clink_glasses.ogg"></audio>
 
     <script>
-        let currentWord = "Hello", currentStreak = 0, attemptCount = 0;
+        let currentWord = "Hello", currentStreak = 0;
         const wordBank = ["Schedule", "Library", "Phenomenon", "Rural", "Sixth", "February", "Specific"];
         
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
         const recognition = new SpeechRecognition();
 
         function getFemaleAussieVoice() {
@@ -81,77 +88,62 @@
             const msg = new SpeechSynthesisUtterance(currentWord);
             const voice = getFemaleAussieVoice();
             if (voice) msg.voice = voice;
-            msg.rate = (attemptCount >= 4) ? 0.5 : document.getElementById('speedSlider').value;
+            msg.rate = 0.9;
             window.speechSynthesis.speak(msg);
         }
 
         function setCustomWord() {
             const input = document.getElementById('userWordInput');
-            const newWord = input.value.trim();
-            if (newWord !== "") {
-                currentWord = newWord;
+            if (input.value.trim() !== "") {
+                currentWord = input.value.trim();
                 document.getElementById('wordDisplay').innerText = currentWord;
-                document.getElementById('progressFill').style.width = "0%";
-                document.getElementById('feedback').innerText = "Word set! ⌨️";
-                attemptCount = 0;
                 input.value = "";
+                document.getElementById('progressFill').style.width = "0%";
             }
         }
 
         function startListening() { 
-            try {
-                recognition.start();
-                document.getElementById('feedback').innerText = "Listening... 🎤";
-            } catch(e) { console.log("Recognition error"); }
+            recognition.start();
+            document.getElementById('feedback').innerText = "Listening... 🎤";
         }
 
         recognition.onresult = (event) => {
             const transcript = event.results[0][0].transcript.toLowerCase();
-            const score = (transcript.includes(currentWord.toLowerCase())) ? 1.0 : 0.5;
-            updateUI(transcript, score);
+            const isCorrect = transcript.includes(currentWord.toLowerCase());
+            updateUI(transcript, isCorrect);
         };
 
-        function updateUI(transcript, score) {
-            const percentage = Math.round(score * 100);
-            document.getElementById('scoreDisplay').innerText = percentage + "%";
-            document.getElementById('progressFill').style.width = percentage + "%";
+        function updateUI(transcript, isCorrect) {
+            const score = isCorrect ? 100 : 0;
+            document.getElementById('scoreDisplay').innerText = score + "%";
+            document.getElementById('progressFill').style.width = score + "%";
 
-            if (percentage >= 80) {
+            if (isCorrect) {
+                document.getElementById('tacoSound').play();
                 currentStreak++;
-                attemptCount = 0;
-                if (percentage === 100) {
-                    document.getElementById('tacoSound').play();
-                    document.getElementById('feedback').innerText = "PERFECT! 🌮🔔";
-                } else {
-                    document.getElementById('successSound').play();
-                    document.getElementById('feedback').innerText = "Nice! 👍";
-                }
                 setTimeout(setRandomWord, 1000);
             } else {
                 currentStreak = 0;
-                attemptCount++;
-                document.getElementById('feedback').innerText = `I heard: "${transcript}"`;
+                document.getElementById('feedback').innerText = "I heard: " + transcript;
             }
-            document.getElementById('streakDisplay').innerText = `${currentStreak} ⚡`;
-            updateHistory(percentage);
-        }
-
-        function updateHistory(percentage) {
+            document.getElementById('streakDisplay').innerText = currentStreak;
+            
+            // Add to history
             const log = document.getElementById('historyLog');
             const entry = document.createElement('div');
             entry.className = 'history-item';
-            entry.innerHTML = `<b>${currentWord}</b>: ${percentage}%`;
+            entry.innerHTML = `<b>${currentWord}</b>: ${score}%`;
             log.prepend(entry);
-            if (log.children.length > 10) log.removeChild(log.lastElementChild);
         }
 
         function setRandomWord() {
             currentWord = wordBank[Math.floor(Math.random() * wordBank.length)];
             document.getElementById('wordDisplay').innerText = currentWord;
             document.getElementById('progressFill').style.width = "0%";
+            document.getElementById('feedback').innerText = "Ready!";
         }
 
-        window.speechSynthesis.onvoiceschanged = () => { getFemaleAussieVoice(); };
+        window.speechSynthesis.onvoiceschanged = getFemaleAussieVoice;
     </script>
 </body>
 </html>

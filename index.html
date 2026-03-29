@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accent Master v13</title>
+    <title>Accent Master v12</title>
     <style>
         body { 
             font-family: 'Inter', sans-serif; 
@@ -72,16 +72,16 @@
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         const recognition = new SpeechRecognition();
 
-        function getFemaleAussieVoice() {
+        function getAussieVoice() {
             const voices = window.speechSynthesis.getVoices();
-            return voices.find(v => v.lang.includes('en-AU') && (v.name.includes('Female') || v.name.includes('Karen') || v.name.includes('Catherine')));
+            return voices.find(v => v.lang.includes('en-AU') || v.name.includes("Australia"));
         }
 
         function speakWord() {
             const msg = new SpeechSynthesisUtterance(currentWord);
-            const voice = getFemaleAussieVoice();
+            const voice = getAussieVoice();
             if (voice) msg.voice = voice;
-            msg.rate = (attemptCount >= 4) ? 0.5 : document.getElementById('speedSlider').value;
+            msg.rate = document.getElementById('speedSlider').value;
             window.speechSynthesis.speak(msg);
         }
 
@@ -92,22 +92,19 @@
                 currentWord = newWord;
                 document.getElementById('wordDisplay').innerText = currentWord;
                 document.getElementById('progressFill').style.width = "0%";
-                document.getElementById('feedback').innerText = "Word set! ⌨️";
-                attemptCount = 0;
+                document.getElementById('feedback').innerText = "Word ready! ⌨️";
                 input.value = "";
             }
         }
 
         function startListening() { 
-            try {
-                recognition.start();
-                document.getElementById('feedback').innerText = "Listening... 🎤";
-            } catch(e) { console.log("Recognition error"); }
+            recognition.start();
+            document.getElementById('feedback').innerText = "Listening... 🎤";
         }
 
         recognition.onresult = (event) => {
             const transcript = event.results[0][0].transcript.toLowerCase();
-            const score = (transcript.includes(currentWord.toLowerCase())) ? 1.0 : 0.5;
+            const score = (transcript.includes(currentWord.toLowerCase())) ? 1.0 : 0.0;
             updateUI(transcript, score);
         };
 
@@ -116,27 +113,18 @@
             document.getElementById('scoreDisplay').innerText = percentage + "%";
             document.getElementById('progressFill').style.width = percentage + "%";
 
-            if (percentage >= 80) {
+            if (percentage === 100) {
+                document.getElementById('tacoSound').play(); // 🔔 The Bong!
+                document.getElementById('feedback').innerText = "PERFECT! 🌮🔔";
                 currentStreak++;
-                attemptCount = 0;
-                if (percentage === 100) {
-                    document.getElementById('tacoSound').play();
-                    document.getElementById('feedback').innerText = "PERFECT! 🌮🔔";
-                } else {
-                    document.getElementById('successSound').play();
-                    document.getElementById('feedback').innerText = "Nice! 👍";
-                }
                 setTimeout(setRandomWord, 1000);
             } else {
-                currentStreak = 0;
-                attemptCount++;
+                document.getElementById('successSound').play();
                 document.getElementById('feedback').innerText = `I heard: "${transcript}"`;
+                currentStreak = 0;
             }
             document.getElementById('streakDisplay').innerText = `${currentStreak} ⚡`;
-            updateHistory(percentage);
-        }
-
-        function updateHistory(percentage) {
+            
             const log = document.getElementById('historyLog');
             const entry = document.createElement('div');
             entry.className = 'history-item';
@@ -151,7 +139,7 @@
             document.getElementById('progressFill').style.width = "0%";
         }
 
-        window.speechSynthesis.onvoiceschanged = () => { getFemaleAussieVoice(); };
+        window.speechSynthesis.onvoiceschanged = () => { getAussieVoice(); };
     </script>
 </body>
 </html>

@@ -2,43 +2,26 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accent Master Final</title>
+    <title>Accent Master v11</title>
     <style>
-        body { 
-            font-family: 'Inter', sans-serif; 
-            margin: 0; display: flex; height: 100vh; 
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white; overflow: hidden;
-        }
-        .sidebar { 
-            width: 280px; background: rgba(255, 255, 255, 0.1); 
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            border-right: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 25px; display: flex; flex-direction: column; gap: 20px; 
-        }
-        .stat-box { 
-            background: rgba(255, 255, 255, 0.05); padding: 15px; 
-            border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .stat-number { font-size: 1.8rem; font-weight: bold; color: #3498db; }
+        body { font-family: 'Inter', sans-serif; margin: 0; display: flex; height: 100vh; background: #1e3c72; color: white; }
+        .sidebar { width: 280px; background: rgba(255,255,255,0.1); padding: 25px; border-right: 1px solid rgba(255,255,255,0.2); display: flex; flex-direction: column; gap: 20px; }
         .main-content { flex: 1; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         #wordDisplay { font-size: 4rem; margin-bottom: 20px; }
-        button { padding: 12px 25px; border: none; border-radius: 30px; cursor: pointer; font-weight: bold; transition: 0.2s; margin: 5px; }
-        #recordBtn { background: #e74c3c; color: white; }
-        #progressBar { width: 100%; max-width: 500px; height: 12px; background: rgba(255,255,255,0.2); border-radius: 6px; margin: 30px 0; overflow: hidden; }
-        #progressFill { width: 0%; height: 100%; transition: width 0.3s ease; }
-        .history-item { background: rgba(255,255,255,0.1); padding: 8px; margin-top: 5px; border-radius: 5px; font-size: 0.85rem; }
-        input { padding: 10px; border-radius: 20px; border: 1px solid #ccc; width: 180px; color: #333; outline: none; }
+        button { padding: 12px 25px; border-radius: 30px; border: none; cursor: pointer; font-weight: bold; margin: 5px; }
+        input { padding: 10px; border-radius: 20px; border: none; width: 200px; margin-right: 10px; }
+        #progressBar { width: 100%; max-width: 500px; height: 10px; background: rgba(255,255,255,0.2); border-radius: 5px; margin: 20px 0; overflow: hidden; }
+        #progressFill { width: 0%; height: 100%; background: #3498db; transition: 0.3s; }
+        .history-item { background: rgba(255,255,255,0.1); padding: 8px; margin-top: 5px; border-radius: 5px; font-size: 0.8rem; }
     </style>
 </head>
 <body>
     <div class="sidebar">
-        <h2>Progress 🏆</h2>
-        <div class="stat-box"><div>Current Streak</div><div id="streakDisplay" class="stat-number">0 ⚡</div></div>
-        <div class="stat-box"><div>Last Score</div><div id="scoreDisplay" class="stat-number">0%</div></div>
+        <h2>Stats 📊</h2>
+        <div id="streakDisplay">Streak: 0 ⚡</div>
+        <div id="scoreDisplay">Last Score: 0%</div>
         <div style="flex:1; overflow-y:auto;">
-            <strong>Try History 📜</strong>
+            <strong>History 📜</strong>
             <div id="historyLog"></div>
         </div>
     </div>
@@ -47,46 +30,32 @@
         <h1 id="wordDisplay">Hello</h1>
         <div>
             <button onclick="speakWord()" style="background: #3498db; color: white;">🔊 Listen</button>
-            <button id="recordBtn" onclick="startListening()">🎤 Record</button>
+            <button onclick="startListening()" style="background: #e74c3c; color: white;">🎤 Record</button>
         </div>
+        
         <div id="progressBar"><div id="progressFill"></div></div>
         <p id="feedback">Ready!</p>
-        
-        <div style="margin: 20px 0; display: flex; flex-direction: column; align-items: center; gap: 15px;">
-            <label>Speed: <input type="range" id="speedSlider" min="0.1" max="1" step="0.1" value="0.9"></label>
-            
-            <div style="display: flex; gap: 10px;">
-                <input type="text" id="userWordInput" placeholder="Enter your word...">
-                <button onclick="setCustomWord()" style="background: white; color: #1e3c72; padding: 10px 20px;">Set Word</button>
-            </div>
-            
-            <button onclick="setRandomWord()" style="background: #f1c40f; color: #2c3e50;">🎲 Random Word</button>
-        </div>
-    </div>
 
-    <audio id="dingSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
-    <audio id="successSound" src="https://actions.google.com/sounds/v1/cartoon/clink_glasses.ogg"></audio>
+        <div style="margin-top: 20px;">
+            <input type="text" id="userWordInput" placeholder="Type a custom word...">
+            <button onclick="setCustomWord()" style="background: #2ecc71; color: white;">Set Word</button>
+        </div>
+        <button onclick="setRandomWord()" style="background: #f1c40f; margin-top: 10px;">🎲 Random Word</button>
+    </div>
 
     <script>
         let currentWord = "Hello", currentStreak = 0, attemptCount = 0;
-        const wordBank = ["Schedule", "Library", "Phenomenon", "Rural", "Sixth", "February", "Specific"];
+        const wordBank = ["Schedule", "Library", "Specific", "February"];
         const recognition = new (window.webkitSpeechRecognition || window.SpeechRecognition)();
 
-        // 🇦🇺 Find Australian accent
         function getAussieVoice() {
-            const voices = window.speechSynthesis.getVoices();
-            return voices.find(v => 
-                v.lang === 'en-AU' || 
-                v.name.includes("Australia") || 
-                v.name.includes("AU")
-            );
+            return window.speechSynthesis.getVoices().find(v => v.lang === 'en-AU' || v.name.includes("Australia"));
         }
 
         function speakWord() {
             const msg = new SpeechSynthesisUtterance(currentWord);
-            const voice = getAussieVoice();
-            if (voice) msg.voice = voice;
-            msg.rate = (attemptCount >= 4) ? 0.5 : document.getElementById('speedSlider').value;
+            msg.voice = getAussieVoice();
+            msg.rate = (attemptCount >= 4) ? 0.5 : 0.9;
             window.speechSynthesis.speak(msg);
         }
 
@@ -96,55 +65,46 @@
             if (newWord !== "") {
                 currentWord = newWord;
                 document.getElementById('wordDisplay').innerText = currentWord;
-                document.getElementById('progressFill').style.width = "0%";
-                document.getElementById('feedback').innerText = "Custom word set!";
                 attemptCount = 0;
                 input.value = "";
             }
+        }
+
+        function setRandomWord() {
+            currentWord = wordBank[Math.floor(Math.random() * wordBank.length)];
+            document.getElementById('wordDisplay').innerText = currentWord;
+            attemptCount = 0;
         }
 
         function startListening() { recognition.start(); }
 
         recognition.onresult = (event) => {
             const transcript = event.results[0][0].transcript.toLowerCase();
-            const score = (transcript === currentWord.toLowerCase()) ? 1.0 : 0.5;
-            updateUI(transcript, score);
+            const isCorrect = transcript === currentWord.toLowerCase();
+            updateUI(isCorrect);
         };
 
-        function updateUI(transcript, score) {
-            const percentage = Math.round(score * 100);
-            const fill = document.getElementById('progressFill');
-            document.getElementById('scoreDisplay').innerText = percentage + "%";
-            fill.style.width = percentage + "%";
-
-            if (percentage >= 80) {
+        function updateUI(isCorrect) {
+            const score = isCorrect ? 100 : 0;
+            document.getElementById('scoreDisplay').innerText = `Last Score: ${score}%`;
+            document.getElementById('progressFill').style.width = `${score}%`;
+            
+            if (isCorrect) {
                 currentStreak++;
-                attemptCount = 0;
-                if (percentage === 100) document.getElementById('dingSound').play();
-                else document.getElementById('successSound').play();
-                setTimeout(setRandomWord, 400);
+                setTimeout(setRandomWord, 1000);
             } else {
                 currentStreak = 0;
                 attemptCount++;
             }
-
-            document.getElementById('streakDisplay').innerText = `${currentStreak} ⚡`;
+            document.getElementById('streakDisplay').innerText = `Streak: ${currentStreak} ⚡`;
+            
             const log = document.getElementById('historyLog');
-            const entry = document.createElement('div');
-            entry.className = 'history-item';
-            entry.innerHTML = `Tried <b>${currentWord}</b>: ${percentage}%`;
-            log.prepend(entry);
+            const item = document.createElement('div');
+            item.className = 'history-item';
+            item.innerText = `${currentWord}: ${score}%`;
+            log.prepend(item);
             if (log.children.length > 10) log.removeChild(log.lastElementChild);
         }
-
-        function setRandomWord() {
-            currentWord = wordBank[Math.floor(Math.random() * wordBank.length)];
-            document.getElementById('wordDisplay').innerText = currentWord;
-            document.getElementById('progressFill').style.width = "0%";
-            document.getElementById('feedback').innerText = "Ready!";
-        }
-
-        window.speechSynthesis.onvoiceschanged = () => { getAussieVoice(); };
     </script>
 </body>
 </html>

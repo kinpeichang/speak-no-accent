@@ -1,145 +1,369 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accent Master v12</title>
-    <style>
-        body { 
-            font-family: 'Inter', sans-serif; 
-            margin: 0; display: flex; height: 100vh; 
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white; overflow: hidden;
-        }
-        .sidebar { 
-            width: 280px; background: rgba(255, 255, 255, 0.1); 
-            backdrop-filter: blur(10px);
-            border-right: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 25px; display: flex; flex-direction: column; gap: 20px; 
-        }
-        .stat-box { 
-            background: rgba(255, 255, 255, 0.05); padding: 15px; 
-            border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .stat-number { font-size: 1.8rem; font-weight: bold; color: #3498db; }
-        .main-content { flex: 1; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        #wordDisplay { font-size: 4rem; margin-bottom: 20px; text-shadow: 2px 2px 10px rgba(0,0,0,0.3); }
-        button { padding: 12px 25px; border: none; border-radius: 30px; cursor: pointer; font-weight: bold; transition: 0.2s; margin: 5px; }
-        #recordBtn { background: #e74c3c; color: white; }
-        #progressBar { width: 100%; max-width: 500px; height: 12px; background: rgba(255,255,255,0.2); border-radius: 6px; margin: 30px 0; overflow: hidden; }
-        #progressFill { width: 0%; height: 100%; transition: width 0.3s ease; background: #2ecc71; }
-        .history-item { background: rgba(255,255,255,0.1); padding: 8px; margin-top: 5px; border-radius: 5px; font-size: 0.85rem; }
-        input { padding: 10px; border-radius: 20px; border: 1px solid #ccc; width: 180px; color: #333; outline: none; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Accent Master</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f4f0;overflow:hidden}
+.app{display:flex;height:100vh;min-height:600px;background:#f5f4f0;overflow:hidden}
+.sidebar{width:220px;min-width:220px;background:#fff;border-right:0.5px solid rgba(0,0,0,0.1);display:flex;flex-direction:column;padding:0;overflow:hidden}
+.sidebar-header{padding:16px 16px 10px;border-bottom:0.5px solid rgba(0,0,0,0.1)}
+.app-title{font-size:15px;font-weight:500;color:#1a1a1a}
+.app-sub{font-size:11px;color:#888;margin-top:2px}
+.stat-row{display:flex;gap:8px;padding:10px 16px;border-bottom:0.5px solid rgba(0,0,0,0.1)}
+.stat-card{flex:1;background:#f5f4f0;border-radius:8px;padding:7px 10px}
+.stat-label{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.05em}
+.stat-val{font-size:19px;font-weight:500;color:#1a1a1a;margin-top:1px;line-height:1}
+.stat-val.good{color:#1D9E75}
+.section-title{font-size:10px;font-weight:500;color:#888;text-transform:uppercase;letter-spacing:.06em;padding:10px 16px 4px}
+.cat-btn{display:flex;align-items:center;gap:8px;padding:5px 16px;cursor:pointer;border:none;background:transparent;width:100%;text-align:left;color:#555;font-size:12px;font-family:inherit;transition:background .1s}
+.cat-btn:hover{background:#f5f4f0}
+.cat-btn.active{background:#f5f4f0;color:#1a1a1a;font-weight:500}
+.cat-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.cat-count{margin-left:auto;font-size:10px;color:#aaa}
+.history-list{flex:1;overflow-y:auto;padding:0 16px 12px}
+.hist-item{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:0.5px solid rgba(0,0,0,0.08);font-size:12px}
+.hist-word{color:#1a1a1a}
+.main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;gap:0;overflow:auto}
+.word-area{text-align:center;margin-bottom:24px}
+.word-label{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.word-display{font-size:3.2rem;font-weight:500;color:#1a1a1a;line-height:1;margin-bottom:5px}
+.phonetic{font-size:13px;color:#888;font-style:italic}
+.diff-row{display:flex;gap:6px;margin-bottom:14px}
+.diff-btn{padding:4px 12px;font-size:11px;border-radius:8px;border:0.5px solid rgba(0,0,0,0.2);background:transparent;cursor:pointer;color:#555;font-family:inherit}
+.diff-btn.active{border-color:#1D9E75;color:#1D9E75;background:#E1F5EE}
+.controls{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;justify-content:center}
+.btn{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:0.5px solid rgba(0,0,0,0.2);background:#fff;color:#1a1a1a;font-family:inherit;transition:background .1s,transform .1s}
+.btn:hover{background:#f5f4f0}
+.btn:active{transform:scale(.97)}
+.btn.danger{background:#E24B4A;border-color:#E24B4A;color:#fff}
+.btn.danger:hover{background:#A32D2D}
+.score-area{width:100%;max-width:420px;margin-bottom:16px}
+.score-bar-bg{height:8px;background:#e8e6e0;border-radius:4px;overflow:hidden;margin-bottom:7px}
+.score-bar-fill{height:100%;border-radius:4px;transition:width .4s ease,background .4s ease;width:0%}
+.feedback{font-size:13px;color:#666;text-align:center;min-height:18px}
+.feedback.success{color:#1D9E75;font-weight:500}
+.feedback.fail{color:#E24B4A}
+.bottom-row{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap;justify-content:center}
+.bottom-row input[type=text]{padding:7px 12px;border-radius:8px;border:0.5px solid rgba(0,0,0,0.2);background:#fff;color:#1a1a1a;font-size:12px;font-family:inherit;outline:none;width:160px}
+.speed-row{display:flex;align-items:center;gap:10px;font-size:12px;color:#666;margin-top:10px}
+.speed-row input{width:100px}
+.progress-label{font-size:11px;color:#888;margin-top:6px;text-align:center}
+</style>
 </head>
 <body>
-    <div class="sidebar">
-        <h2>Accent Master 🏆</h2>
-        <div class="stat-box"><div>Current Streak</div><div id="streakDisplay" class="stat-number">0 ⚡</div></div>
-        <div class="stat-box"><div>Last Score</div><div id="scoreDisplay" class="stat-number">0%</div></div>
-        <div style="flex:1; overflow-y:auto;">
-            <strong>Try History 📜</strong>
-            <div id="historyLog"></div>
-        </div>
+<div class="app">
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="app-title">Accent Master</div>
+      <div class="app-sub">Australian English practice</div>
     </div>
-
-    <div class="main-content">
-        <h1 id="wordDisplay">Hello</h1>
-        <div>
-            <button onclick="speakWord()" style="background: #3498db; color: white;">🔊 Listen</button>
-            <button id="recordBtn" onclick="startListening()">🎤 Record</button>
-        </div>
-        <div id="progressBar"><div id="progressFill"></div></div>
-        <p id="feedback">Ready!</p>
-        
-        <div style="margin: 20px 0; display: flex; flex-direction: column; align-items: center; gap: 15px;">
-            <label>Speed: <input type="range" id="speedSlider" min="0.1" max="1" step="0.1" value="0.9"></label>
-            <div style="display: flex; gap: 10px;">
-                <input type="text" id="userWordInput" placeholder="Enter custom word...">
-                <button onclick="setCustomWord()" style="background: white; color: #1e3c72; padding: 10px 20px;">Set Word</button>
-            </div>
-            <button onclick="setRandomWord()" style="background: #f1c40f; color: #2c3e50;">🎲 Random Word</button>
-        </div>
+    <div class="stat-row">
+      <div class="stat-card"><div class="stat-label">Streak</div><div class="stat-val" id="streakVal">0</div></div>
+      <div class="stat-card"><div class="stat-label">Best</div><div class="stat-val good" id="bestVal">—</div></div>
     </div>
-
-    <audio id="tacoSound" src="https://actions.google.com/sounds/v1/impacts/crash_metal.ogg"></audio>
-    <audio id="successSound" src="https://actions.google.com/sounds/v1/cartoon/clink_glasses.ogg"></audio>
-
-    <script>
-        let currentWord = "Hello", currentStreak = 0, attemptCount = 0;
-        const wordBank = ["Schedule", "Library", "Phenomenon", "Rural", "Sixth", "February", "Specific"];
-        
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        const recognition = new SpeechRecognition();
-
-        function getAussieVoice() {
-            const voices = window.speechSynthesis.getVoices();
-            return voices.find(v => v.lang.includes('en-AU') || v.name.includes("Australia"));
-        }
-
-        function speakWord() {
-            const msg = new SpeechSynthesisUtterance(currentWord);
-            const voice = getAussieVoice();
-            if (voice) msg.voice = voice;
-            msg.rate = document.getElementById('speedSlider').value;
-            window.speechSynthesis.speak(msg);
-        }
-
-        function setCustomWord() {
-            const input = document.getElementById('userWordInput');
-            const newWord = input.value.trim();
-            if (newWord !== "") {
-                currentWord = newWord;
-                document.getElementById('wordDisplay').innerText = currentWord;
-                document.getElementById('progressFill').style.width = "0%";
-                document.getElementById('feedback').innerText = "Word ready! ⌨️";
-                input.value = "";
-            }
-        }
-
-        function startListening() { 
-            recognition.start();
-            document.getElementById('feedback').innerText = "Listening... 🎤";
-        }
-
-        recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript.toLowerCase();
-            const score = (transcript.includes(currentWord.toLowerCase())) ? 1.0 : 0.0;
-            updateUI(transcript, score);
-        };
-
-        function updateUI(transcript, score) {
-            const percentage = Math.round(score * 100);
-            document.getElementById('scoreDisplay').innerText = percentage + "%";
-            document.getElementById('progressFill').style.width = percentage + "%";
-
-            if (percentage === 100) {
-                document.getElementById('tacoSound').play(); // 🔔 The Bong!
-                document.getElementById('feedback').innerText = "PERFECT! 🌮🔔";
-                currentStreak++;
-                setTimeout(setRandomWord, 1000);
-            } else {
-                document.getElementById('successSound').play();
-                document.getElementById('feedback').innerText = `I heard: "${transcript}"`;
-                currentStreak = 0;
-            }
-            document.getElementById('streakDisplay').innerText = `${currentStreak} ⚡`;
-            
-            const log = document.getElementById('historyLog');
-            const entry = document.createElement('div');
-            entry.className = 'history-item';
-            entry.innerHTML = `<b>${currentWord}</b>: ${percentage}%`;
-            log.prepend(entry);
-            if (log.children.length > 10) log.removeChild(log.lastElementChild);
-        }
-
-        function setRandomWord() {
-            currentWord = wordBank[Math.floor(Math.random() * wordBank.length)];
-            document.getElementById('wordDisplay').innerText = currentWord;
-            document.getElementById('progressFill').style.width = "0%";
-        }
-
-        window.speechSynthesis.onvoiceschanged = () => { getAussieVoice(); };
-    </script>
+    <div class="section-title">Categories</div>
+    <div style="overflow-y:auto;flex:0 0 auto;max-height:260px">
+      <button class="cat-btn active" data-cat="all" onclick="selectCat(this)"><span class="cat-dot" style="background:#888780"></span>All words<span class="cat-count" id="cnt-all"></span></button>
+      <button class="cat-btn" data-cat="tricky" onclick="selectCat(this)"><span class="cat-dot" style="background:#E24B4A"></span>Tricky sounds<span class="cat-count" id="cnt-tricky"></span></button>
+      <button class="cat-btn" data-cat="business" onclick="selectCat(this)"><span class="cat-dot" style="background:#378ADD"></span>Business<span class="cat-count" id="cnt-business"></span></button>
+      <button class="cat-btn" data-cat="finance" onclick="selectCat(this)"><span class="cat-dot" style="background:#1D9E75"></span>Finance<span class="cat-count" id="cnt-finance"></span></button>
+      <button class="cat-btn" data-cat="tech" onclick="selectCat(this)"><span class="cat-dot" style="background:#7F77DD"></span>Tech / AI<span class="cat-count" id="cnt-tech"></span></button>
+      <button class="cat-btn" data-cat="medical" onclick="selectCat(this)"><span class="cat-dot" style="background:#D85A30"></span>Medical<span class="cat-count" id="cnt-medical"></span></button>
+      <button class="cat-btn" data-cat="everyday" onclick="selectCat(this)"><span class="cat-dot" style="background:#BA7517"></span>Everyday<span class="cat-count" id="cnt-everyday"></span></button>
+      <button class="cat-btn" data-cat="numbers" onclick="selectCat(this)"><span class="cat-dot" style="background:#D4537E"></span>Numbers<span class="cat-count" id="cnt-numbers"></span></button>
+    </div>
+    <div class="section-title">Recent history</div>
+    <div class="history-list" id="historyList"></div>
+  </div>
+ 
+  <div class="main">
+    <div class="word-area">
+      <div class="word-label" id="catLabel">All words</div>
+      <div class="word-display" id="wordDisplay">Schedule</div>
+      <div class="phonetic" id="phoneticDisplay">SHED-yool</div>
+    </div>
+    <div class="diff-row">
+      <button class="diff-btn active" data-diff="easy" onclick="setDiff(this)">Easy</button>
+      <button class="diff-btn" data-diff="medium" onclick="setDiff(this)">Medium</button>
+      <button class="diff-btn" data-diff="hard" onclick="setDiff(this)">Hard</button>
+      <button class="diff-btn" data-diff="all" onclick="setDiff(this)">All</button>
+    </div>
+    <div class="controls">
+      <button class="btn" onclick="speakWord()">Listen</button>
+      <button class="btn" id="recordBtn" onclick="toggleRecord()">Record</button>
+      <button class="btn" onclick="nextWord()">Next word</button>
+    </div>
+    <div class="score-area">
+      <div class="score-bar-bg"><div class="score-bar-fill" id="scoreFill"></div></div>
+      <div class="feedback" id="feedback">Press Listen to hear, then Record to practice</div>
+    </div>
+    <div class="progress-label" id="progressLabel"></div>
+    <div class="speed-row">
+      <span>Speed:</span>
+      <input type="range" id="speedSlider" min="0.3" max="1" step="0.1" value="0.85">
+      <span id="speedLabel">0.9</span>
+    </div>
+    <div class="bottom-row">
+      <input type="text" id="customInput" placeholder="Enter any word...">
+      <button class="btn" onclick="setCustom()">Practice it</button>
+    </div>
+  </div>
+</div>
+ 
+<script>
+const words = {
+  tricky:[
+    {w:"Schedule",p:"SHED-yool"},{w:"Rural",p:"RUH-rul"},{w:"Sixth",p:"SIKSTH"},{w:"February",p:"FEB-roo-er-ee"},
+    {w:"Squirrel",p:"SKWIR-ul"},{w:"Worcestershire",p:"WUSS-ter-sher"},{w:"Phenomenon",p:"fi-NOM-i-non"},
+    {w:"Thoroughly",p:"THUR-uh-lee"},{w:"Entrepreneur",p:"on-truh-pruh-NUR"},{w:"Brewery",p:"BROO-er-ee"},
+    {w:"Particularly",p:"puh-TIK-yuh-ler-lee"},{w:"Specifically",p:"spuh-SIF-ik-lee"},{w:"Conscientious",p:"kon-shee-EN-shus"},
+    {w:"Mischievous",p:"MIS-chuh-vus"},{w:"Deteriorate",p:"di-TEER-ee-uh-rayt"},
+    {w:"Onomatopoeia",p:"on-uh-mat-uh-PEE-uh"},{w:"Soliloquy",p:"suh-LIL-uh-kwee"},
+    {w:"Rendezvous",p:"RON-day-voo"},{w:"Quinoa",p:"KEEN-wah"},{w:"Epitome",p:"ih-PIT-uh-mee"},
+    {w:"Niche",p:"NEESH"},{w:"Cache",p:"KASH"},{w:"Hyperbole",p:"hy-PUR-buh-lee"},
+    {w:"Segue",p:"SEG-way"},{w:"Pronunciation",p:"pruh-NUN-see-AY-shun"},
+    {w:"Anonymity",p:"an-uh-NIM-ih-tee"},{w:"Supererogatory",p:"soo-per-uh-ROG-uh-tor-ee"},
+    {w:"Otorhinolaryngology",p:"oh-toh-RY-no-lar-ing-GOL-uh-jee"},{w:"Worcestershire",p:"WUSS-ter-sher"},
+    {w:"Ambiguous",p:"am-BIG-yoo-us"}
+  ],
+  business:[
+    {w:"Negotiate",p:"ni-GOH-shee-ayt"},{w:"Portfolio",p:"port-FOH-lee-oh"},{w:"Executive",p:"ig-ZEK-yuh-tiv"},
+    {w:"Revenue",p:"REV-uh-nyoo"},{w:"Strategy",p:"STRAT-uh-jee"},{w:"Opportunity",p:"op-ur-TYOO-ni-tee"},
+    {w:"Acquisition",p:"ak-wi-ZI-shun"},{w:"Infrastructure",p:"IN-fruh-struk-chur"},{w:"Quarterly",p:"KWOR-ter-lee"},
+    {w:"Stakeholder",p:"STAYK-hohl-der"},{w:"Deliverable",p:"dih-LIV-er-uh-bul"},{w:"Synergy",p:"SIN-er-jee"},
+    {w:"Procurement",p:"pruh-KYOOR-ment"},{w:"Fiduciary",p:"fih-DOO-shee-er-ee"},{w:"Subsidiary",p:"sub-SID-ee-er-ee"},
+    {w:"Consortium",p:"kun-SOR-shee-um"},{w:"Liquidation",p:"lik-wih-DAY-shun"},{w:"Collateral",p:"kuh-LAT-er-ul"},
+    {w:"Amortization",p:"uh-mor-tih-ZAY-shun"},{w:"Depreciation",p:"dih-pree-shee-AY-shun"},
+    {w:"Remuneration",p:"rih-myoo-nuh-RAY-shun"},{w:"Proliferation",p:"pruh-lif-er-AY-shun"},
+    {w:"Reimbursement",p:"ree-im-BURS-ment"},{w:"Organizational",p:"or-gan-ih-ZAY-shun-ul"},
+    {w:"Entrepreneurial",p:"on-truh-pruh-NUR-ee-ul"},{w:"Accountability",p:"uh-kown-tuh-BIL-ih-tee"},
+    {w:"Confidentiality",p:"kon-fih-den-shee-AL-ih-tee"},{w:"Competitiveness",p:"kum-PET-ih-tiv-nes"},
+    {w:"Miscellaneous",p:"mis-uh-LAY-nee-us"},{w:"Bureaucracy",p:"byoo-ROK-ruh-see"},
+    {w:"Facilitation",p:"fuh-sil-ih-TAY-shun"},{w:"Implementation",p:"im-pluh-men-TAY-shun"},
+    {w:"Prioritization",p:"pry-or-ih-tih-ZAY-shun"},{w:"Collaboration",p:"kuh-lab-uh-RAY-shun"},
+    {w:"Sustainability",p:"suh-stayn-uh-BIL-ih-tee"},{w:"Differentiation",p:"dif-er-en-shee-AY-shun"},
+    {w:"Optimization",p:"op-tih-mih-ZAY-shun"},{w:"Restructuring",p:"ree-STRUK-chur-ing"},
+    {w:"Arbitrage",p:"AR-bih-trazh"},{w:"Divestiture",p:"dih-VES-tih-chur"}
+  ],
+  finance:[
+    {w:"Dividend",p:"DIV-ih-dend"},{w:"Liquidity",p:"lih-KWID-ih-tee"},{w:"Volatility",p:"vol-uh-TIL-ih-tee"},
+    {w:"Derivatives",p:"dih-RIV-uh-tivz"},{w:"Equities",p:"EK-wih-teez"},{w:"Cryptocurrency",p:"KRIP-toh-kur-en-see"},
+    {w:"Blockchain",p:"BLOK-chayn"},{w:"Collateralized",p:"kuh-LAT-er-ul-yzd"},{w:"Securitization",p:"sih-kyoor-ih-tih-ZAY-shun"},
+    {w:"Quantitative",p:"KWON-tih-tay-tiv"},{w:"Capitalization",p:"kap-ih-tul-ih-ZAY-shun"},
+    {w:"Diversification",p:"dih-vur-sih-fih-KAY-shun"},{w:"Rebalancing",p:"ree-BAL-ans-ing"},
+    {w:"Annualized",p:"AN-yoo-ul-yzd"},{w:"Compounding",p:"kum-POWND-ing"},
+    {w:"Subordinated",p:"sub-OR-dih-nay-ted"},{w:"Leveraged",p:"LEV-er-ijd"},{w:"Brokerage",p:"BROH-ker-ij"},
+    {w:"Algorithmic",p:"al-guh-RITH-mik"},{w:"Arbitration",p:"ar-bih-TRAY-shun"},
+    {w:"Inflationary",p:"in-FLAY-shun-er-ee"},{w:"Recessionary",p:"rih-SESH-un-er-ee"},
+    {w:"Speculation",p:"spek-yuh-LAY-shun"},{w:"Commodities",p:"kuh-MOD-ih-teez"},
+    {w:"Deregulation",p:"dee-reg-yuh-LAY-shun"},{w:"Conglomerate",p:"kun-GLOM-er-it"},
+    {w:"Shareholders",p:"SHAYR-hohl-ders"},{w:"Institutional",p:"in-stih-TOO-shun-ul"},
+    {w:"Macroeconomics",p:"mak-roh-ee-kuh-NOM-iks"},{w:"Microeconomics",p:"my-kroh-ee-kuh-NOM-iks"},
+    {w:"Quantitative easing",p:"KWON-tih-tay-tiv EE-zing"},{w:"Yield curve",p:"YEELD KURV"},
+    {w:"Amortized",p:"AM-or-tyzd"},{w:"Equity",p:"EK-wih-tee"},{w:"Fiduciary",p:"fih-DOO-shee-er-ee"},
+    {w:"Depreciation",p:"dih-pree-shee-AY-shun"},{w:"Amortization",p:"uh-mor-tih-ZAY-shun"},
+    {w:"Portfolio",p:"port-FOH-lee-oh"},{w:"Arbitrage",p:"AR-bih-trazh"},{w:"Benchmark",p:"BENCH-mark"}
+  ],
+  tech:[
+    {w:"Algorithm",p:"AL-guh-rith-um"},{w:"Artificial intelligence",p:"ar-tih-FISH-ul in-TEL-ih-jens"},
+    {w:"Machine learning",p:"muh-SHEEN LUR-ning"},{w:"Neural network",p:"NYOOR-ul NET-wurk"},
+    {w:"Cybersecurity",p:"SY-ber-sih-KYOOR-ih-tee"},{w:"Blockchain",p:"BLOK-chayn"},
+    {w:"Repository",p:"rih-POZ-ih-tor-ee"},{w:"Authentication",p:"aw-then-tih-KAY-shun"},
+    {w:"Virtualization",p:"vur-choo-ul-ih-ZAY-shun"},{w:"Microservices",p:"MY-kroh-sur-vis-iz"},
+    {w:"Kubernetes",p:"koo-ber-NET-eez"},{w:"Deprecation",p:"dep-ruh-KAY-shun"},
+    {w:"Asynchronous",p:"ay-SING-kruh-nus"},{w:"Parametric",p:"par-uh-MET-rik"},
+    {w:"Logarithmic",p:"log-uh-RITH-mik"},{w:"Scalability",p:"skay-luh-BIL-ih-tee"},
+    {w:"Interoperability",p:"in-ter-op-er-uh-BIL-ih-tee"},{w:"Concatenation",p:"kon-kat-uh-NAY-shun"},
+    {w:"Idempotent",p:"eye-DEM-puh-tent"},{w:"Polymorphism",p:"pol-ee-MOR-fiz-um"},
+    {w:"Encapsulation",p:"en-kap-suh-LAY-shun"},{w:"Recursion",p:"rih-KUR-zhun"},
+    {w:"Bandwidth",p:"BAND-width"},{w:"Latency",p:"LAY-ten-see"},{w:"Throughput",p:"THROO-put"},
+    {w:"Agile",p:"AJ-ul"},{w:"DevOps",p:"DEV-ops"},{w:"Refactoring",p:"ree-FAK-tor-ing"},
+    {w:"Middleware",p:"MID-ul-wayr"},{w:"Containerization",p:"kun-tayn-er-ih-ZAY-shun"},
+    {w:"Orchestration",p:"or-kes-TRAY-shun"},{w:"Generative AI",p:"JEN-er-uh-tiv AY-EYE"},
+    {w:"Large language model",p:"LARJ LANG-gwij MOD-ul"},{w:"Tokenization",p:"TOH-ken-ih-ZAY-shun"},
+    {w:"Hallucination",p:"huh-loo-sih-NAY-shun"},{w:"Parameter",p:"puh-RAM-ih-ter"},
+    {w:"Inference",p:"IN-fer-ens"},{w:"Deprecated",p:"DEP-ruh-kay-ted"},
+    {w:"Cryptocurrency",p:"KRIP-toh-kur-en-see"},{w:"Infrastructure",p:"IN-fruh-struk-chur"}
+  ],
+  medical:[
+    {w:"Pharmaceutical",p:"far-muh-SOO-tih-kul"},{w:"Cardiovascular",p:"kar-dee-oh-VAS-kyuh-ler"},
+    {w:"Neurology",p:"nyoo-ROL-uh-jee"},{w:"Oncology",p:"on-KOL-uh-jee"},
+    {w:"Gastroenterology",p:"gas-troh-en-ter-OL-uh-jee"},{w:"Ophthalmology",p:"of-thal-MOL-uh-jee"},
+    {w:"Orthopedics",p:"or-thuh-PEE-diks"},{w:"Psychiatry",p:"sy-KY-uh-tree"},
+    {w:"Immunology",p:"im-yuh-NOL-uh-jee"},{w:"Endocrinology",p:"en-doh-krin-OL-uh-jee"},
+    {w:"Epidemiology",p:"ep-ih-dee-mee-OL-uh-jee"},{w:"Anesthesiology",p:"an-es-thee-zee-OL-uh-jee"},
+    {w:"Rheumatology",p:"roo-muh-TOL-uh-jee"},{w:"Hematology",p:"hee-muh-TOL-uh-jee"},
+    {w:"Dermatology",p:"dur-muh-TOL-uh-jee"},{w:"Radiology",p:"ray-dee-OL-uh-jee"},
+    {w:"Pathology",p:"puh-THOL-uh-jee"},{w:"Physiology",p:"fiz-ee-OL-uh-jee"},
+    {w:"Pharmacology",p:"far-muh-KOL-uh-jee"},{w:"Microbiology",p:"my-kroh-by-OL-uh-jee"},
+    {w:"Aneurysm",p:"AN-yuh-riz-um"},{w:"Hemorrhage",p:"HEM-er-ij"},
+    {w:"Arrhythmia",p:"uh-RITH-mee-uh"},{w:"Hypertension",p:"hy-per-TEN-shun"},
+    {w:"Hyperthyroidism",p:"hy-per-THY-roy-diz-um"},{w:"Hypothyroidism",p:"hy-poh-THY-roy-diz-um"},
+    {w:"Atherosclerosis",p:"ath-er-oh-skluh-ROH-sis"},{w:"Thrombosis",p:"throm-BOH-sis"},
+    {w:"Osteoporosis",p:"os-tee-oh-puh-ROH-sis"},{w:"Fibromyalgia",p:"fy-broh-my-AL-jee-uh"},
+    {w:"Psoriasis",p:"suh-RY-uh-sis"},{w:"Eczema",p:"EK-zuh-muh"},
+    {w:"Seizure",p:"SEE-zher"},{w:"Triage",p:"TREE-ahzh"},{w:"Prognosis",p:"prog-NOH-sis"},
+    {w:"Diagnosis",p:"dy-ug-NOH-sis"},{w:"Metabolism",p:"muh-TAB-uh-liz-um"},
+    {w:"Placebo",p:"pluh-SEE-boh"},{w:"Anaphylaxis",p:"an-uh-fuh-LAK-sis"},
+    {w:"Coma",p:"KOH-muh"}
+  ],
+  everyday:[
+    {w:"Library",p:"LY-brer-ee"},{w:"Comfortable",p:"KUM-fer-tuh-bul"},{w:"Interesting",p:"IN-tres-ting"},
+    {w:"Probably",p:"PROB-uh-blee"},{w:"Basically",p:"BAY-si-kuh-lee"},{w:"Literally",p:"LIT-er-uh-lee"},
+    {w:"Temperature",p:"TEM-pruh-chur"},{w:"Vegetable",p:"VEJ-tuh-bul"},{w:"Especially",p:"i-SPESH-uh-lee"},
+    {w:"Generally",p:"JEN-er-uh-lee"},{w:"Regularly",p:"REG-yuh-ler-lee"},{w:"Necessary",p:"NES-ih-ser-ee"},
+    {w:"Different",p:"DIF-rent"},{w:"Government",p:"GUV-ern-ment"},{w:"Environment",p:"en-VY-urn-ment"},
+    {w:"Chocolate",p:"CHOK-lit"},{w:"Wednesday",p:"WENZ-day"},{w:"Restaurant",p:"RES-tuh-ront"},
+    {w:"Breakfast",p:"BREK-fust"},{w:"Clothes",p:"KLOHZ"},{w:"Jewelry",p:"JOO-ul-ree"},
+    {w:"Coincidence",p:"koh-IN-sih-dens"},{w:"Immediately",p:"ih-MEE-dee-it-lee"},
+    {w:"Approximately",p:"uh-PROK-suh-mit-lee"},{w:"Definitely",p:"DEF-uh-nit-lee"},
+    {w:"Accidentally",p:"ak-SID-en-tuh-lee"},{w:"Apparently",p:"uh-PAR-ent-lee"},
+    {w:"Deteriorate",p:"dih-TEER-ee-uh-rayt"},{w:"Particularly",p:"puh-TIK-yuh-ler-lee"},
+    {w:"Comfortable",p:"KUM-fer-tuh-bul"}
+  ],
+  numbers:[
+    {w:"Thirteen",p:"thur-TEEN"},{w:"Thirty",p:"THUR-tee"},{w:"Fourteen",p:"for-TEEN"},{w:"Forty",p:"FOR-tee"},
+    {w:"Fifteen",p:"fif-TEEN"},{w:"Fifty",p:"FIF-tee"},{w:"Sixteen",p:"sik-STEEN"},{w:"Sixty",p:"SIK-stee"},
+    {w:"Thousand",p:"THOW-zund"},{w:"Million",p:"MIL-yun"},{w:"Billion",p:"BIL-yun"},{w:"Trillion",p:"TRIL-yun"},
+    {w:"Percentage",p:"pur-SEN-tij"},{w:"Hundredth",p:"HUN-dredth"},{w:"Thousandth",p:"THOW-zunth"},
+    {w:"Quadrillion",p:"kwod-RIL-yun"},{w:"Decimal",p:"DES-ih-mul"},{w:"Fraction",p:"FRAK-shun"},
+    {w:"Numerator",p:"NYOO-mer-ay-ter"},{w:"Denominator",p:"dih-NOM-ih-nay-ter"}
+  ]
+};
+ 
+const catLabels={all:"All words",tricky:"Tricky sounds",business:"Business",finance:"Finance",tech:"Tech / AI",medical:"Medical",everyday:"Everyday",numbers:"Numbers"};
+let currentCat="all",currentDiff="easy",currentWordObj={w:"Schedule",p:"SHED-yool"},streak=0,bestStreak=0,history=[],isRecording=false,sessionCount=0,sessionCorrect=0;
+ 
+function getPool(){
+  const diffCats={easy:["everyday","numbers"],medium:["business","finance","everyday","tricky"],hard:["tricky","business","finance","tech","medical"],all:Object.keys(words)};
+  const cats=currentDiff==="all"?Object.keys(words):diffCats[currentDiff];
+  if(currentCat==="all") return cats.flatMap(c=>words[c]);
+  return words[currentCat]||[];
+}
+ 
+function updateCounts(){
+  const all=Object.values(words).flat();
+  document.getElementById("cnt-all").textContent=all.length;
+  Object.keys(words).forEach(k=>{const el=document.getElementById("cnt-"+k);if(el)el.textContent=words[k].length;});
+}
+ 
+function nextWord(){
+  const pool=getPool();
+  const idx=Math.floor(Math.random()*pool.length);
+  currentWordObj=pool[idx];
+  document.getElementById("wordDisplay").textContent=currentWordObj.w;
+  document.getElementById("phoneticDisplay").textContent=currentWordObj.p;
+  document.getElementById("scoreFill").style.width="0%";
+  document.getElementById("feedback").textContent="Press Listen, then Record";
+  document.getElementById("feedback").className="feedback";
+  updateProgress();
+}
+ 
+function speakWord(){
+  window.speechSynthesis.cancel();
+  const voices=window.speechSynthesis.getVoices();
+  const au=voices.find(v=>v.lang.includes("en-AU")||v.name.toLowerCase().includes("australia"))||voices.find(v=>v.lang.startsWith("en"));
+  const msg=new SpeechSynthesisUtterance(currentWordObj.w);
+  if(au)msg.voice=au;
+  msg.rate=parseFloat(document.getElementById("speedSlider").value);
+  window.speechSynthesis.speak(msg);
+}
+ 
+const recognition=new(window.SpeechRecognition||window.webkitSpeechRecognition)();
+recognition.lang="en-AU";
+ 
+function toggleRecord(){
+  if(isRecording){recognition.stop();return;}
+  recognition.start();isRecording=true;
+  document.getElementById("recordBtn").textContent="Stop";
+  document.getElementById("recordBtn").classList.add("danger");
+  document.getElementById("feedback").textContent="Listening...";
+  document.getElementById("feedback").className="feedback";
+}
+ 
+recognition.onresult=e=>{
+  const heard=e.results[0][0].transcript.toLowerCase().trim();
+  const target=currentWordObj.w.toLowerCase();
+  let score=0;
+  if(heard===target)score=1.0;
+  else if(heard.includes(target))score=0.88;
+  else{
+    const hl=heard.length,tl=target.length;let m=0;
+    for(let i=0;i<Math.min(hl,tl);i++)if(heard[i]===target[i])m++;
+    score=Math.max(0,m/Math.max(hl,tl)-0.1);
+    if([...target].every(c=>heard.includes(c)))score=Math.max(score,0.6);
+    if(heard.split(" ").some(w=>w===target))score=Math.max(score,0.9);
+  }
+  const pct=Math.round(score*100);
+  sessionCount++;if(pct>=80)sessionCorrect++;
+  showResult(heard,pct);
+};
+ 
+recognition.onend=()=>{isRecording=false;document.getElementById("recordBtn").textContent="Record";document.getElementById("recordBtn").classList.remove("danger");};
+recognition.onerror=()=>{isRecording=false;document.getElementById("recordBtn").textContent="Record";document.getElementById("recordBtn").classList.remove("danger");document.getElementById("feedback").textContent="Mic error — check browser permissions";};
+ 
+function showResult(heard,pct){
+  const fill=document.getElementById("scoreFill");
+  fill.style.width=pct+"%";
+  fill.style.background=pct>=80?"#1D9E75":pct>=50?"#BA7517":"#E24B4A";
+  const fb=document.getElementById("feedback");
+  if(pct>=80){
+    fb.textContent=pct===100?"Perfect!":"Great — "+pct+"% match";
+    fb.className="feedback success";streak++;
+    if(streak>bestStreak){bestStreak=streak;document.getElementById("bestVal").textContent=bestStreak;}
+    setTimeout(nextWord,1300);
+  } else {
+    fb.textContent='I heard "'+heard+'" — try again ('+pct+"%)";
+    fb.className="feedback fail";streak=0;
+  }
+  document.getElementById("streakVal").textContent=streak;
+  addHistory(currentWordObj.w,pct);updateProgress();
+}
+ 
+function addHistory(word,pct){
+  history.unshift({word,pct});if(history.length>15)history.pop();
+  document.getElementById("historyList").innerHTML=history.map(h=>`<div class="hist-item"><span class="hist-word">${h.word}</span><span style="font-weight:500;font-size:12px;color:${h.pct>=80?"#1D9E75":h.pct>=50?"#BA7517":"#E24B4A"}">${h.pct}%</span></div>`).join("");
+}
+ 
+function updateProgress(){
+  if(sessionCount===0){document.getElementById("progressLabel").textContent="";return;}
+  const acc=Math.round(sessionCorrect/sessionCount*100);
+  document.getElementById("progressLabel").textContent="Session: "+sessionCorrect+"/"+sessionCount+" correct ("+acc+"% accuracy)";
+}
+ 
+function selectCat(btn){
+  document.querySelectorAll(".cat-btn").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");currentCat=btn.dataset.cat;
+  document.getElementById("catLabel").textContent=catLabels[currentCat]||"All words";
+  nextWord();
+}
+ 
+function setDiff(btn){
+  document.querySelectorAll(".diff-btn").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");currentDiff=btn.dataset.diff;nextWord();
+}
+ 
+function setCustom(){
+  const v=document.getElementById("customInput").value.trim();if(!v)return;
+  currentWordObj={w:v,p:"(custom)"};
+  document.getElementById("wordDisplay").textContent=v;
+  document.getElementById("phoneticDisplay").textContent="(custom)";
+  document.getElementById("customInput").value="";
+  document.getElementById("scoreFill").style.width="0%";
+  document.getElementById("feedback").textContent="Press Listen, then Record";
+  document.getElementById("feedback").className="feedback";
+}
+ 
+document.getElementById("speedSlider").addEventListener("input",function(){
+  document.getElementById("speedLabel").textContent=parseFloat(this.value).toFixed(1);
+});
+ 
+window.speechSynthesis.onvoiceschanged=()=>{};
+updateCounts();nextWord();
+</script>
 </body>
 </html>
+ 

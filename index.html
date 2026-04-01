@@ -2,119 +2,153 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Accent Master">
 <title>Accent Master</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f4f0;overflow:hidden}
-.app{display:flex;height:100vh;min-height:600px;background:#f5f4f0;overflow:hidden}
-.sidebar{width:220px;min-width:220px;background:#fff;border-right:0.5px solid rgba(0,0,0,0.1);display:flex;flex-direction:column;padding:0;overflow:hidden}
-.sidebar-header{padding:16px 16px 10px;border-bottom:0.5px solid rgba(0,0,0,0.1)}
-.app-title{font-size:15px;font-weight:500;color:#1a1a1a}
-.app-sub{font-size:11px;color:#888;margin-top:2px}
-.stat-row{display:flex;gap:8px;padding:10px 16px;border-bottom:0.5px solid rgba(0,0,0,0.1)}
-.stat-card{flex:1;background:#f5f4f0;border-radius:8px;padding:7px 10px}
-.stat-label{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.05em}
-.stat-val{font-size:19px;font-weight:500;color:#1a1a1a;margin-top:1px;line-height:1}
-.stat-val.good{color:#1D9E75}
-.section-title{font-size:10px;font-weight:500;color:#888;text-transform:uppercase;letter-spacing:.06em;padding:10px 16px 4px}
-.cat-btn{display:flex;align-items:center;gap:8px;padding:5px 16px;cursor:pointer;border:none;background:transparent;width:100%;text-align:left;color:#555;font-size:12px;font-family:inherit;transition:background .1s}
-.cat-btn:hover{background:#f5f4f0}
-.cat-btn.active{background:#f5f4f0;color:#1a1a1a;font-weight:500}
-.cat-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.cat-count{margin-left:auto;font-size:10px;color:#aaa}
-.history-list{flex:1;overflow-y:auto;padding:0 16px 12px}
-.hist-item{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:0.5px solid rgba(0,0,0,0.08);font-size:12px}
-.hist-word{color:#1a1a1a}
-.main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;gap:0;overflow:auto}
-.word-area{text-align:center;margin-bottom:24px}
-.word-label{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
-.word-display{font-size:3.2rem;font-weight:500;color:#1a1a1a;line-height:1;margin-bottom:5px}
-.phonetic{font-size:13px;color:#888;font-style:italic}
-.diff-row{display:flex;gap:6px;margin-bottom:14px}
-.diff-btn{padding:4px 12px;font-size:11px;border-radius:8px;border:0.5px solid rgba(0,0,0,0.2);background:transparent;cursor:pointer;color:#555;font-family:inherit}
-.diff-btn.active{border-color:#1D9E75;color:#1D9E75;background:#E1F5EE}
-.controls{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;justify-content:center}
-.btn{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:0.5px solid rgba(0,0,0,0.2);background:#fff;color:#1a1a1a;font-family:inherit;transition:background .1s,transform .1s}
-.btn:hover{background:#f5f4f0}
-.btn:active{transform:scale(.97)}
-.btn.danger{background:#E24B4A;border-color:#E24B4A;color:#fff}
-.btn.danger:hover{background:#A32D2D}
-.score-area{width:100%;max-width:420px;margin-bottom:16px}
-.score-bar-bg{height:8px;background:#e8e6e0;border-radius:4px;overflow:hidden;margin-bottom:7px}
-.score-bar-fill{height:100%;border-radius:4px;transition:width .4s ease,background .4s ease;width:0%}
-.feedback{font-size:13px;color:#666;text-align:center;min-height:18px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f4f0;min-height:100vh;min-height:-webkit-fill-available}
+html{height:-webkit-fill-available}
+.top-nav{position:fixed;top:0;left:0;right:0;z-index:100;background:#fff;border-bottom:0.5px solid rgba(0,0,0,0.12);padding:12px 16px 8px;padding-top:calc(12px + env(safe-area-inset-top))}
+.top-nav-inner{display:flex;align-items:center;justify-content:space-between}
+.app-title{font-size:17px;font-weight:600;color:#1a1a1a}
+.app-sub{font-size:11px;color:#888}
+.stat-pills{display:flex;gap:8px}
+.stat-pill{background:#f5f4f0;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:500;color:#1a1a1a}
+.stat-pill span{color:#1D9E75}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:#fff;border-top:0.5px solid rgba(0,0,0,0.12);display:flex;padding-bottom:env(safe-area-inset-bottom)}
+.nav-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 0;cursor:pointer;border:none;background:transparent;font-family:inherit;color:#888;font-size:10px;gap:3px;transition:color .15s}
+.nav-tab.active{color:#1D9E75}
+.nav-icon{font-size:20px;line-height:1}
+.screen{display:none;position:fixed;top:0;left:0;right:0;bottom:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.screen.active{display:block}
+.screen-content{padding-top:calc(64px + env(safe-area-inset-top));padding-bottom:calc(80px + env(safe-area-inset-bottom))}
+.practice-wrap{display:flex;flex-direction:column;align-items:center;padding:20px 16px;gap:0}
+.word-card{background:#fff;border-radius:20px;width:100%;padding:28px 20px;text-align:center;margin-bottom:16px;border:0.5px solid rgba(0,0,0,0.08)}
+.word-label{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.word-display{font-size:2.6rem;font-weight:600;color:#1a1a1a;line-height:1.1;margin-bottom:8px;word-break:break-word}
+.phonetic{font-size:14px;color:#888;font-style:italic}
+.score-card{background:#fff;border-radius:16px;width:100%;padding:16px 20px;margin-bottom:14px;border:0.5px solid rgba(0,0,0,0.08)}
+.score-bar-bg{height:10px;background:#f0ede8;border-radius:5px;overflow:hidden;margin-bottom:8px}
+.score-bar-fill{height:100%;border-radius:5px;transition:width .4s ease,background .4s ease;width:0%}
+.feedback{font-size:14px;color:#666;text-align:center;min-height:20px;line-height:1.4}
 .feedback.success{color:#1D9E75;font-weight:500}
 .feedback.fail{color:#E24B4A}
-.bottom-row{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap;justify-content:center}
-.bottom-row input[type=text]{padding:7px 12px;border-radius:8px;border:0.5px solid rgba(0,0,0,0.2);background:#fff;color:#1a1a1a;font-size:12px;font-family:inherit;outline:none;width:160px}
-.speed-row{display:flex;align-items:center;gap:10px;font-size:12px;color:#666;margin-top:10px}
-.speed-row input{width:100px}
-.progress-label{font-size:11px;color:#888;margin-top:6px;text-align:center}
+.btn-row{display:flex;gap:10px;width:100%;margin-bottom:12px}
+.btn{flex:1;padding:14px 8px;border-radius:14px;font-size:14px;font-weight:500;cursor:pointer;border:0.5px solid rgba(0,0,0,0.15);background:#fff;color:#1a1a1a;font-family:inherit;transition:background .1s,transform .1s;text-align:center}
+.btn:active{transform:scale(.96)}
+.btn.primary{background:#1D9E75;border-color:#1D9E75;color:#fff}
+.btn.danger{background:#E24B4A;border-color:#E24B4A;color:#fff}
+.btn.secondary{background:#f5f4f0;border-color:transparent}
+.diff-row{display:flex;gap:6px;margin-bottom:14px;width:100%}
+.diff-btn{flex:1;padding:8px 4px;font-size:12px;border-radius:10px;border:0.5px solid rgba(0,0,0,0.15);background:#fff;cursor:pointer;color:#666;font-family:inherit;text-align:center}
+.diff-btn.active{border-color:#1D9E75;color:#1D9E75;background:#E1F5EE;font-weight:500}
+.custom-row{display:flex;gap:8px;width:100%;margin-top:4px}
+.custom-row input{flex:1;padding:12px 14px;border-radius:12px;border:0.5px solid rgba(0,0,0,0.15);background:#fff;color:#1a1a1a;font-size:15px;font-family:inherit;outline:none}
+.custom-row input:focus{border-color:#1D9E75}
+.speed-row{display:flex;align-items:center;gap:12px;font-size:13px;color:#666;width:100%;margin-top:12px}
+.speed-row input[type=range]{flex:1;accent-color:#1D9E75}
+.progress-note{font-size:12px;color:#aaa;margin-top:8px;text-align:center;width:100%}
+.section-pad{padding:16px}
+.section-head{font-size:12px;font-weight:500;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.cat-card{background:#fff;border-radius:14px;padding:16px;cursor:pointer;border:1.5px solid transparent;transition:border-color .15s}
+.cat-card.active{border-color:#1D9E75}
+.cat-card-dot{width:10px;height:10px;border-radius:50%;margin-bottom:8px}
+.cat-card-name{font-size:14px;font-weight:500;color:#1a1a1a;margin-bottom:2px}
+.cat-card-count{font-size:12px;color:#888}
+.hist-list{padding:16px}
+.hist-item{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#fff;border-radius:12px;margin-bottom:8px}
+.hist-word{font-size:15px;color:#1a1a1a;font-weight:500}
+.hist-score{font-size:14px;font-weight:500}
+.empty-state{text-align:center;padding:60px 20px;color:#aaa;font-size:15px}
 </style>
 </head>
 <body>
-<div class="app">
-  <div class="sidebar">
-    <div class="sidebar-header">
+
+<div class="top-nav">
+  <div class="top-nav-inner">
+    <div>
       <div class="app-title">Accent Master</div>
       <div class="app-sub">Australian English practice</div>
     </div>
-    <div class="stat-row">
-      <div class="stat-card"><div class="stat-label">Streak</div><div class="stat-val" id="streakVal">0</div></div>
-      <div class="stat-card"><div class="stat-label">Best</div><div class="stat-val good" id="bestVal">—</div></div>
-    </div>
-    <div class="section-title">Categories</div>
-    <div style="overflow-y:auto;flex:0 0 auto;max-height:260px">
-      <button class="cat-btn active" data-cat="all" onclick="selectCat(this)"><span class="cat-dot" style="background:#888780"></span>All words<span class="cat-count" id="cnt-all"></span></button>
-      <button class="cat-btn" data-cat="tricky" onclick="selectCat(this)"><span class="cat-dot" style="background:#E24B4A"></span>Tricky sounds<span class="cat-count" id="cnt-tricky"></span></button>
-      <button class="cat-btn" data-cat="business" onclick="selectCat(this)"><span class="cat-dot" style="background:#378ADD"></span>Business<span class="cat-count" id="cnt-business"></span></button>
-      <button class="cat-btn" data-cat="finance" onclick="selectCat(this)"><span class="cat-dot" style="background:#1D9E75"></span>Finance<span class="cat-count" id="cnt-finance"></span></button>
-      <button class="cat-btn" data-cat="tech" onclick="selectCat(this)"><span class="cat-dot" style="background:#7F77DD"></span>Tech / AI<span class="cat-count" id="cnt-tech"></span></button>
-      <button class="cat-btn" data-cat="medical" onclick="selectCat(this)"><span class="cat-dot" style="background:#D85A30"></span>Medical<span class="cat-count" id="cnt-medical"></span></button>
-      <button class="cat-btn" data-cat="everyday" onclick="selectCat(this)"><span class="cat-dot" style="background:#BA7517"></span>Everyday<span class="cat-count" id="cnt-everyday"></span></button>
-      <button class="cat-btn" data-cat="numbers" onclick="selectCat(this)"><span class="cat-dot" style="background:#D4537E"></span>Numbers<span class="cat-count" id="cnt-numbers"></span></button>
-    </div>
-    <div class="section-title">Recent history</div>
-    <div class="history-list" id="historyList"></div>
-  </div>
-
-  <div class="main">
-    <div class="word-area">
-      <div class="word-label" id="catLabel">All words</div>
-      <div class="word-display" id="wordDisplay">Schedule</div>
-      <div class="phonetic" id="phoneticDisplay">SHED-yool</div>
-    </div>
-    <div class="diff-row">
-      <button class="diff-btn active" data-diff="easy" onclick="setDiff(this)">Easy</button>
-      <button class="diff-btn" data-diff="medium" onclick="setDiff(this)">Medium</button>
-      <button class="diff-btn" data-diff="hard" onclick="setDiff(this)">Hard</button>
-      <button class="diff-btn" data-diff="all" onclick="setDiff(this)">All</button>
-    </div>
-    <div class="controls">
-      <button class="btn" onclick="speakWord()">Listen</button>
-      <button class="btn" id="recordBtn" onclick="toggleRecord()">Record</button>
-      <button class="btn" onclick="nextWord()">Next word</button>
-    </div>
-    <div class="score-area">
-      <div class="score-bar-bg"><div class="score-bar-fill" id="scoreFill"></div></div>
-      <div class="feedback" id="feedback">Press Listen to hear, then Record to practice</div>
-    </div>
-    <div class="progress-label" id="progressLabel"></div>
-    <div class="speed-row">
-      <span>Speed:</span>
-      <input type="range" id="speedSlider" min="0.3" max="1" step="0.1" value="0.85">
-      <span id="speedLabel">0.9</span>
-    </div>
-    <div class="bottom-row">
-      <input type="text" id="customInput" placeholder="Enter any word...">
-      <button class="btn" onclick="setCustom()">Practice it</button>
+    <div class="stat-pills">
+      <div class="stat-pill">🔥 <span id="streakVal">0</span></div>
+      <div class="stat-pill">⭐ <span id="bestVal">0</span></div>
     </div>
   </div>
 </div>
 
+<div class="screen active" id="screen-practice">
+  <div class="screen-content">
+    <div class="practice-wrap">
+      <div class="word-card">
+        <div class="word-label" id="catLabel">All words</div>
+        <div class="word-display" id="wordDisplay">Schedule</div>
+        <div class="phonetic" id="phoneticDisplay">SHED-yool</div>
+      </div>
+      <div class="diff-row">
+        <button class="diff-btn active" data-diff="easy" onclick="setDiff(this)">Easy</button>
+        <button class="diff-btn" data-diff="medium" onclick="setDiff(this)">Medium</button>
+        <button class="diff-btn" data-diff="hard" onclick="setDiff(this)">Hard</button>
+        <button class="diff-btn" data-diff="all" onclick="setDiff(this)">All</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn secondary" onclick="speakWord()">🔊 Listen</button>
+        <button class="btn" id="recordBtn" onclick="toggleRecord()">🎤 Record</button>
+        <button class="btn secondary" onclick="nextWord()">Next</button>
+      </div>
+      <div class="score-card">
+        <div class="score-bar-bg"><div class="score-bar-fill" id="scoreFill"></div></div>
+        <div class="feedback" id="feedback">Tap Listen, then Record to practice</div>
+      </div>
+      <div class="progress-note" id="progressLabel"></div>
+      <div class="speed-row">
+        <span>Speed</span>
+        <input type="range" id="speedSlider" min="0.3" max="1" step="0.1" value="0.85">
+        <span id="speedLabel">0.9</span>
+      </div>
+      <div class="custom-row" style="margin-top:16px">
+        <input type="text" id="customInput" placeholder="Enter any word...">
+        <button class="btn primary" style="flex:0 0 auto;padding:12px 16px" onclick="setCustom()">Go</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="screen-categories">
+  <div class="screen-content">
+    <div class="section-pad">
+      <div class="section-head">Choose a category</div>
+      <div class="cat-grid" id="catGrid"></div>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="screen-history">
+  <div class="screen-content">
+    <div class="hist-list" id="histList">
+      <div class="empty-state">No attempts yet. Start practicing!</div>
+    </div>
+  </div>
+</div>
+
+<div class="bottom-nav">
+  <button class="nav-tab active" onclick="showScreen('practice',this)">
+    <div class="nav-icon">🎤</div>Practice
+  </button>
+  <button class="nav-tab" onclick="showScreen('categories',this)">
+    <div class="nav-icon">📚</div>Categories
+  </button>
+  <button class="nav-tab" onclick="showScreen('history',this)">
+    <div class="nav-icon">📊</div>History
+  </button>
+</div>
+
 <script>
-const words = {
+const words={
   tricky:[
     {w:"Schedule",p:"SHED-yool"},{w:"Rural",p:"RUH-rul"},{w:"Sixth",p:"SIKSTH"},{w:"February",p:"FEB-roo-er-ee"},
     {w:"Squirrel",p:"SKWIR-ul"},{w:"Worcestershire",p:"WUSS-ter-sher"},{w:"Phenomenon",p:"fi-NOM-i-non"},
@@ -125,9 +159,9 @@ const words = {
     {w:"Rendezvous",p:"RON-day-voo"},{w:"Quinoa",p:"KEEN-wah"},{w:"Epitome",p:"ih-PIT-uh-mee"},
     {w:"Niche",p:"NEESH"},{w:"Cache",p:"KASH"},{w:"Hyperbole",p:"hy-PUR-buh-lee"},
     {w:"Segue",p:"SEG-way"},{w:"Pronunciation",p:"pruh-NUN-see-AY-shun"},
-    {w:"Anonymity",p:"an-uh-NIM-ih-tee"},{w:"Supererogatory",p:"soo-per-uh-ROG-uh-tor-ee"},
-    {w:"Otorhinolaryngology",p:"oh-toh-RY-no-lar-ing-GOL-uh-jee"},{w:"Worcestershire",p:"WUSS-ter-sher"},
-    {w:"Ambiguous",p:"am-BIG-yoo-us"}
+    {w:"Anonymity",p:"an-uh-NIM-ih-tee"},{w:"Ambiguous",p:"am-BIG-yoo-us"},
+    {w:"Supererogatory",p:"soo-per-uh-ROG-uh-tor-ee"},{w:"Otorhinolaryngology",p:"oh-toh-RY-no-lar-ing-GOL-uh-jee"},
+    {w:"Worcestershire",p:"WUSS-ter-sher"}
   ],
   business:[
     {w:"Negotiate",p:"ni-GOH-shee-ayt"},{w:"Portfolio",p:"port-FOH-lee-oh"},{w:"Executive",p:"ig-ZEK-yuh-tiv"},
@@ -163,9 +197,10 @@ const words = {
     {w:"Shareholders",p:"SHAYR-hohl-ders"},{w:"Institutional",p:"in-stih-TOO-shun-ul"},
     {w:"Macroeconomics",p:"mak-roh-ee-kuh-NOM-iks"},{w:"Microeconomics",p:"my-kroh-ee-kuh-NOM-iks"},
     {w:"Quantitative easing",p:"KWON-tih-tay-tiv EE-zing"},{w:"Yield curve",p:"YEELD KURV"},
-    {w:"Amortized",p:"AM-or-tyzd"},{w:"Equity",p:"EK-wih-tee"},{w:"Fiduciary",p:"fih-DOO-shee-er-ee"},
-    {w:"Depreciation",p:"dih-pree-shee-AY-shun"},{w:"Amortization",p:"uh-mor-tih-ZAY-shun"},
-    {w:"Portfolio",p:"port-FOH-lee-oh"},{w:"Arbitrage",p:"AR-bih-trazh"},{w:"Benchmark",p:"BENCH-mark"}
+    {w:"Amortized",p:"AM-or-tyzd"},{w:"Equity",p:"EK-wih-tee"},
+    {w:"Portfolio",p:"port-FOH-lee-oh"},{w:"Benchmark",p:"BENCH-mark"},
+    {w:"Depreciation",p:"dih-pree-shee-AY-shun"},{w:"Fiduciary",p:"fih-DOO-shee-er-ee"},
+    {w:"Amortization",p:"uh-mor-tih-ZAY-shun"},{w:"Arbitrage",p:"AR-bih-trazh"}
   ],
   tech:[
     {w:"Algorithm",p:"AL-guh-rith-um"},{w:"Artificial intelligence",p:"ar-tih-FISH-ul in-TEL-ih-jens"},
@@ -207,8 +242,7 @@ const words = {
     {w:"Psoriasis",p:"suh-RY-uh-sis"},{w:"Eczema",p:"EK-zuh-muh"},
     {w:"Seizure",p:"SEE-zher"},{w:"Triage",p:"TREE-ahzh"},{w:"Prognosis",p:"prog-NOH-sis"},
     {w:"Diagnosis",p:"dy-ug-NOH-sis"},{w:"Metabolism",p:"muh-TAB-uh-liz-um"},
-    {w:"Placebo",p:"pluh-SEE-boh"},{w:"Anaphylaxis",p:"an-uh-fuh-LAK-sis"},
-    {w:"Coma",p:"KOH-muh"}
+    {w:"Placebo",p:"pluh-SEE-boh"},{w:"Anaphylaxis",p:"an-uh-fuh-LAK-sis"},{w:"Coma",p:"KOH-muh"}
   ],
   everyday:[
     {w:"Library",p:"LY-brer-ee"},{w:"Comfortable",p:"KUM-fer-tuh-bul"},{w:"Interesting",p:"IN-tres-ting"},
@@ -234,30 +268,33 @@ const words = {
   ]
 };
 
-const catLabels={all:"All words",tricky:"Tricky sounds",business:"Business",finance:"Finance",tech:"Tech / AI",medical:"Medical",everyday:"Everyday",numbers:"Numbers"};
+const catMeta={
+  all:{label:"All words",color:"#888780"},
+  tricky:{label:"Tricky sounds",color:"#E24B4A"},
+  business:{label:"Business",color:"#378ADD"},
+  finance:{label:"Finance",color:"#1D9E75"},
+  tech:{label:"Tech / AI",color:"#7F77DD"},
+  medical:{label:"Medical",color:"#D85A30"},
+  everyday:{label:"Everyday",color:"#BA7517"},
+  numbers:{label:"Numbers",color:"#D4537E"}
+};
+
 let currentCat="all",currentDiff="easy",currentWordObj={w:"Schedule",p:"SHED-yool"},streak=0,bestStreak=0,history=[],isRecording=false,sessionCount=0,sessionCorrect=0;
 
 function getPool(){
   const diffCats={easy:["everyday","numbers"],medium:["business","finance","everyday","tricky"],hard:["tricky","business","finance","tech","medical"],all:Object.keys(words)};
   const cats=currentDiff==="all"?Object.keys(words):diffCats[currentDiff];
-  if(currentCat==="all") return cats.flatMap(c=>words[c]);
+  if(currentCat==="all")return cats.flatMap(c=>words[c]);
   return words[currentCat]||[];
-}
-
-function updateCounts(){
-  const all=Object.values(words).flat();
-  document.getElementById("cnt-all").textContent=all.length;
-  Object.keys(words).forEach(k=>{const el=document.getElementById("cnt-"+k);if(el)el.textContent=words[k].length;});
 }
 
 function nextWord(){
   const pool=getPool();
-  const idx=Math.floor(Math.random()*pool.length);
-  currentWordObj=pool[idx];
+  currentWordObj=pool[Math.floor(Math.random()*pool.length)];
   document.getElementById("wordDisplay").textContent=currentWordObj.w;
   document.getElementById("phoneticDisplay").textContent=currentWordObj.p;
   document.getElementById("scoreFill").style.width="0%";
-  document.getElementById("feedback").textContent="Press Listen, then Record";
+  document.getElementById("feedback").textContent="Tap Listen, then Record to practice";
   document.getElementById("feedback").className="feedback";
   updateProgress();
 }
@@ -277,9 +314,10 @@ recognition.lang="en-AU";
 
 function toggleRecord(){
   if(isRecording){recognition.stop();return;}
-  recognition.start();isRecording=true;
-  document.getElementById("recordBtn").textContent="Stop";
-  document.getElementById("recordBtn").classList.add("danger");
+  try{recognition.start();}catch(e){return;}
+  isRecording=true;
+  const btn=document.getElementById("recordBtn");
+  btn.textContent="⏹ Stop";btn.classList.add("danger");
   document.getElementById("feedback").textContent="Listening...";
   document.getElementById("feedback").className="feedback";
 }
@@ -291,9 +329,9 @@ recognition.onresult=e=>{
   if(heard===target)score=1.0;
   else if(heard.includes(target))score=0.88;
   else{
-    const hl=heard.length,tl=target.length;let m=0;
-    for(let i=0;i<Math.min(hl,tl);i++)if(heard[i]===target[i])m++;
-    score=Math.max(0,m/Math.max(hl,tl)-0.1);
+    let m=0;
+    for(let i=0;i<Math.min(heard.length,target.length);i++)if(heard[i]===target[i])m++;
+    score=Math.max(0,m/Math.max(heard.length,target.length)-0.1);
     if([...target].every(c=>heard.includes(c)))score=Math.max(score,0.6);
     if(heard.split(" ").some(w=>w===target))score=Math.max(score,0.9);
   }
@@ -302,8 +340,17 @@ recognition.onresult=e=>{
   showResult(heard,pct);
 };
 
-recognition.onend=()=>{isRecording=false;document.getElementById("recordBtn").textContent="Record";document.getElementById("recordBtn").classList.remove("danger");};
-recognition.onerror=()=>{isRecording=false;document.getElementById("recordBtn").textContent="Record";document.getElementById("recordBtn").classList.remove("danger");document.getElementById("feedback").textContent="Mic error — check browser permissions";};
+recognition.onend=()=>{
+  isRecording=false;
+  const btn=document.getElementById("recordBtn");
+  btn.textContent="🎤 Record";btn.classList.remove("danger");
+};
+recognition.onerror=()=>{
+  isRecording=false;
+  const btn=document.getElementById("recordBtn");
+  btn.textContent="🎤 Record";btn.classList.remove("danger");
+  document.getElementById("feedback").textContent="Mic error — check Safari permissions";
+};
 
 function showResult(heard,pct){
   const fill=document.getElementById("scoreFill");
@@ -312,33 +359,35 @@ function showResult(heard,pct){
   const fb=document.getElementById("feedback");
   if(pct>=80){
     fb.textContent=pct===100?"Perfect!":"Great — "+pct+"% match";
-    fb.className="feedback success";streak++;
+    fb.className="feedback success";
+    streak++;
     if(streak>bestStreak){bestStreak=streak;document.getElementById("bestVal").textContent=bestStreak;}
     setTimeout(nextWord,1300);
   } else {
-    fb.textContent='I heard "'+heard+'" — try again ('+pct+"%)";
+    fb.textContent='Heard "'+heard+'" — try again ('+pct+"%)";
     fb.className="feedback fail";streak=0;
   }
   document.getElementById("streakVal").textContent=streak;
-  addHistory(currentWordObj.w,pct);updateProgress();
+  addHistory(currentWordObj.w,pct);
+  updateProgress();
 }
 
 function addHistory(word,pct){
-  history.unshift({word,pct});if(history.length>15)history.pop();
-  document.getElementById("historyList").innerHTML=history.map(h=>`<div class="hist-item"><span class="hist-word">${h.word}</span><span style="font-weight:500;font-size:12px;color:${h.pct>=80?"#1D9E75":h.pct>=50?"#BA7517":"#E24B4A"}">${h.pct}%</span></div>`).join("");
+  history.unshift({word,pct});
+  if(history.length>30)history.pop();
+  renderHistory();
+}
+
+function renderHistory(){
+  const el=document.getElementById("histList");
+  if(history.length===0){el.innerHTML='<div class="empty-state">No attempts yet. Start practicing!</div>';return;}
+  el.innerHTML=history.map(h=>`<div class="hist-item"><span class="hist-word">${h.word}</span><span class="hist-score" style="color:${h.pct>=80?"#1D9E75":h.pct>=50?"#BA7517":"#E24B4A"}">${h.pct}%</span></div>`).join("");
 }
 
 function updateProgress(){
   if(sessionCount===0){document.getElementById("progressLabel").textContent="";return;}
   const acc=Math.round(sessionCorrect/sessionCount*100);
-  document.getElementById("progressLabel").textContent="Session: "+sessionCorrect+"/"+sessionCount+" correct ("+acc+"% accuracy)";
-}
-
-function selectCat(btn){
-  document.querySelectorAll(".cat-btn").forEach(b=>b.classList.remove("active"));
-  btn.classList.add("active");currentCat=btn.dataset.cat;
-  document.getElementById("catLabel").textContent=catLabels[currentCat]||"All words";
-  nextWord();
+  document.getElementById("progressLabel").textContent="Session: "+sessionCorrect+"/"+sessionCount+" correct · "+acc+"% accuracy";
 }
 
 function setDiff(btn){
@@ -353,8 +402,37 @@ function setCustom(){
   document.getElementById("phoneticDisplay").textContent="(custom)";
   document.getElementById("customInput").value="";
   document.getElementById("scoreFill").style.width="0%";
-  document.getElementById("feedback").textContent="Press Listen, then Record";
+  document.getElementById("feedback").textContent="Tap Listen, then Record";
   document.getElementById("feedback").className="feedback";
+  showScreen("practice",document.querySelectorAll(".nav-tab")[0]);
+}
+
+function buildCatGrid(){
+  const grid=document.getElementById("catGrid");
+  const allCount=Object.values(words).flat().length;
+  const cats=[{key:"all",count:allCount},...Object.keys(words).map(k=>({key:k,count:words[k].length}))];
+  grid.innerHTML=cats.map(c=>`
+    <div class="cat-card${currentCat===c.key?" active":""}" onclick="selectCat('${c.key}',this)">
+      <div class="cat-card-dot" style="background:${catMeta[c.key]?.color||"#888"}"></div>
+      <div class="cat-card-name">${catMeta[c.key]?.label||c.key}</div>
+      <div class="cat-card-count">${c.count} words</div>
+    </div>`).join("");
+}
+
+function selectCat(key){
+  currentCat=key;
+  document.getElementById("catLabel").textContent=catMeta[key]?.label||"All words";
+  nextWord();
+  setTimeout(()=>showScreen("practice",document.querySelectorAll(".nav-tab")[0]),200);
+}
+
+function showScreen(name,tab){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.querySelectorAll(".nav-tab").forEach(t=>t.classList.remove("active"));
+  document.getElementById("screen-"+name).classList.add("active");
+  if(tab)tab.classList.add("active");
+  if(name==="categories")buildCatGrid();
+  if(name==="history")renderHistory();
 }
 
 document.getElementById("speedSlider").addEventListener("input",function(){
@@ -362,7 +440,7 @@ document.getElementById("speedSlider").addEventListener("input",function(){
 });
 
 window.speechSynthesis.onvoiceschanged=()=>{};
-updateCounts();nextWord();
+nextWord();
 </script>
 </body>
 </html>

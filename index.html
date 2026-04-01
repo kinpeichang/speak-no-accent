@@ -78,7 +78,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="section-title">Recent history</div>
     <div class="history-list" id="historyList"></div>
   </div>
- 
+
   <div class="main">
     <div class="word-area">
       <div class="word-label" id="catLabel">All words</div>
@@ -112,7 +112,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 </div>
- 
+
 <script>
 const words = {
   tricky:[
@@ -233,23 +233,23 @@ const words = {
     {w:"Numerator",p:"NYOO-mer-ay-ter"},{w:"Denominator",p:"dih-NOM-ih-nay-ter"}
   ]
 };
- 
+
 const catLabels={all:"All words",tricky:"Tricky sounds",business:"Business",finance:"Finance",tech:"Tech / AI",medical:"Medical",everyday:"Everyday",numbers:"Numbers"};
 let currentCat="all",currentDiff="easy",currentWordObj={w:"Schedule",p:"SHED-yool"},streak=0,bestStreak=0,history=[],isRecording=false,sessionCount=0,sessionCorrect=0;
- 
+
 function getPool(){
   const diffCats={easy:["everyday","numbers"],medium:["business","finance","everyday","tricky"],hard:["tricky","business","finance","tech","medical"],all:Object.keys(words)};
   const cats=currentDiff==="all"?Object.keys(words):diffCats[currentDiff];
   if(currentCat==="all") return cats.flatMap(c=>words[c]);
   return words[currentCat]||[];
 }
- 
+
 function updateCounts(){
   const all=Object.values(words).flat();
   document.getElementById("cnt-all").textContent=all.length;
   Object.keys(words).forEach(k=>{const el=document.getElementById("cnt-"+k);if(el)el.textContent=words[k].length;});
 }
- 
+
 function nextWord(){
   const pool=getPool();
   const idx=Math.floor(Math.random()*pool.length);
@@ -261,7 +261,7 @@ function nextWord(){
   document.getElementById("feedback").className="feedback";
   updateProgress();
 }
- 
+
 function speakWord(){
   window.speechSynthesis.cancel();
   const voices=window.speechSynthesis.getVoices();
@@ -271,10 +271,10 @@ function speakWord(){
   msg.rate=parseFloat(document.getElementById("speedSlider").value);
   window.speechSynthesis.speak(msg);
 }
- 
+
 const recognition=new(window.SpeechRecognition||window.webkitSpeechRecognition)();
 recognition.lang="en-AU";
- 
+
 function toggleRecord(){
   if(isRecording){recognition.stop();return;}
   recognition.start();isRecording=true;
@@ -283,7 +283,7 @@ function toggleRecord(){
   document.getElementById("feedback").textContent="Listening...";
   document.getElementById("feedback").className="feedback";
 }
- 
+
 recognition.onresult=e=>{
   const heard=e.results[0][0].transcript.toLowerCase().trim();
   const target=currentWordObj.w.toLowerCase();
@@ -301,10 +301,10 @@ recognition.onresult=e=>{
   sessionCount++;if(pct>=80)sessionCorrect++;
   showResult(heard,pct);
 };
- 
+
 recognition.onend=()=>{isRecording=false;document.getElementById("recordBtn").textContent="Record";document.getElementById("recordBtn").classList.remove("danger");};
 recognition.onerror=()=>{isRecording=false;document.getElementById("recordBtn").textContent="Record";document.getElementById("recordBtn").classList.remove("danger");document.getElementById("feedback").textContent="Mic error — check browser permissions";};
- 
+
 function showResult(heard,pct){
   const fill=document.getElementById("scoreFill");
   fill.style.width=pct+"%";
@@ -322,30 +322,30 @@ function showResult(heard,pct){
   document.getElementById("streakVal").textContent=streak;
   addHistory(currentWordObj.w,pct);updateProgress();
 }
- 
+
 function addHistory(word,pct){
   history.unshift({word,pct});if(history.length>15)history.pop();
   document.getElementById("historyList").innerHTML=history.map(h=>`<div class="hist-item"><span class="hist-word">${h.word}</span><span style="font-weight:500;font-size:12px;color:${h.pct>=80?"#1D9E75":h.pct>=50?"#BA7517":"#E24B4A"}">${h.pct}%</span></div>`).join("");
 }
- 
+
 function updateProgress(){
   if(sessionCount===0){document.getElementById("progressLabel").textContent="";return;}
   const acc=Math.round(sessionCorrect/sessionCount*100);
   document.getElementById("progressLabel").textContent="Session: "+sessionCorrect+"/"+sessionCount+" correct ("+acc+"% accuracy)";
 }
- 
+
 function selectCat(btn){
   document.querySelectorAll(".cat-btn").forEach(b=>b.classList.remove("active"));
   btn.classList.add("active");currentCat=btn.dataset.cat;
   document.getElementById("catLabel").textContent=catLabels[currentCat]||"All words";
   nextWord();
 }
- 
+
 function setDiff(btn){
   document.querySelectorAll(".diff-btn").forEach(b=>b.classList.remove("active"));
   btn.classList.add("active");currentDiff=btn.dataset.diff;nextWord();
 }
- 
+
 function setCustom(){
   const v=document.getElementById("customInput").value.trim();if(!v)return;
   currentWordObj={w:v,p:"(custom)"};
@@ -356,14 +356,13 @@ function setCustom(){
   document.getElementById("feedback").textContent="Press Listen, then Record";
   document.getElementById("feedback").className="feedback";
 }
- 
+
 document.getElementById("speedSlider").addEventListener("input",function(){
   document.getElementById("speedLabel").textContent=parseFloat(this.value).toFixed(1);
 });
- 
+
 window.speechSynthesis.onvoiceschanged=()=>{};
 updateCounts();nextWord();
 </script>
 </body>
 </html>
- 
